@@ -6,5 +6,6 @@
     <string name="hello_world">Hello world!</string>
     <string name="start">Start</string>
     <string name="manual">Manual</string>
+    <string name="bt_not_available">Bluetooth is not available on this device.</string>
 
 </resources>

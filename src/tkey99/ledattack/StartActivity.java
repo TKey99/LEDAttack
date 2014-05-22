@@ -40,6 +40,8 @@ public class StartActivity extends Activity {
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		setContentView(R.layout.start);
 
+		BluetoothManager.getInstance().enableBT(this);
+
 		title = (TextView) findViewById(R.id.title);
 		start = (Button) findViewById(R.id.start_button);
 		manual = (Button) findViewById(R.id.manual_button);
@@ -48,6 +50,12 @@ public class StartActivity extends Activity {
 		manual.setOnTouchListener(new ButtonListener());
 	}
 
+	/**
+	 * Listener for the Buttons in the View
+	 * 
+	 * @author TKey99
+	 * 
+	 */
 	private class ButtonListener implements OnTouchListener {
 
 		@Override
@@ -60,6 +68,7 @@ public class StartActivity extends Activity {
 				startActivityForResult(startIntent, 1);
 				return true;
 			} else if (v == manual) {
+				setContentView(R.layout.manuals);
 				return true;
 
 			}
