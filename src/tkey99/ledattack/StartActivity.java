@@ -1,5 +1,6 @@
 package tkey99.ledattack;
 
+import tkey99.ledattack.utilities.BluetoothManager;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.view.View;
@@ -64,7 +65,7 @@ public class StartActivity extends Activity {
 				// TODO wenn tocuhlistener aktiviert kein button highlighting
 				// mehr....
 				Intent startIntent = new Intent(getApplicationContext(),
-						GameActivity.class);
+						GameEngineActivity.class);
 				startActivityForResult(startIntent, 1);
 				return true;
 			} else if (v == manual) {
