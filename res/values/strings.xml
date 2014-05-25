@@ -7,5 +7,20 @@
     <string name="start">Start</string>
     <string name="manual">Manual</string>
     <string name="bt_not_available">Bluetooth is not available on this device.</string>
+    <string name="jump">Jump</string>
+    <string name="push">Push</string>
+    <string name="game_status_text">Gamestatus:</string>
+    <string name="game_score">Score:</string>
+    <string name="game_status_pause">Pause</string>
+    <string name="game_status_ingame">Ingame</string>
+    <string name="manual_title">LED Attack Manual</string>
+    <string name="manual_main_title">How to score...</string>
+    <string name="manual_jump_title">Jump Button</string>
+    <string name="manual_push_title">Push Button</string>
+    <string name="manual_jump_text">Press &quot;Jump&quot; to jump</string>
+    <string name="manual_push_text">Hold &quot;Push&quot; to push boxes into the direction you walk</string>
+    <string name="manual_main_text">In this game you have to push boxes around and try to bring them into one row.  Once you achieved the goal you gain 100 points. But be careful! If a box hits you at the head while your are not jumping you lose.</string>
+    <string name="title_activity_manual">ManualActivity</string>
+    <string name="bt_not_connected">Your bluetooth device is not connected to the server, please restart app.</string>
 
 </resources>

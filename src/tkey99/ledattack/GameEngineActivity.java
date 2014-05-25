@@ -9,6 +9,7 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.widget.Button;
 
 /**
  * This activity is active during playing the game.
@@ -16,36 +17,28 @@ import android.util.Log;
  * @author TKey99
  * 
  */
-public class GameEngineActivity extends Activity implements SensorEventListener {
+public class GameEngineActivity extends Activity {
 
 	SensorManager sensorManager;
 
+	private Button statusButton;
+
+	private Button jumpButton;
+
+	private Button pushButton;
+	
+	private LedAttackEngine engine;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.d("s", "game created!");
 		super.onCreate(savedInstanceState);
+		setContentView(R.layout.game);
 
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
-		setContentView(R.layout.start);
-
-		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-		sensorManager.registerListener(this,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-				SensorManager.SENSOR_DELAY_NORMAL);
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-		// TODO Auto-generated method stub
-
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-			float x = event.values[0];
-			float y = event.values[1];
-			float z = event.values[2];
-			// TODO
-		}
+		statusButton = (Button) findViewById(R.id.game_status_toggle);
+		jumpButton = (Button) findViewById(R.id.jump_button);
+		pushButton = (Button) findViewById(R.id.push_button);
+		
+		engine = new LedAttackEngine(this);
 	}
 }

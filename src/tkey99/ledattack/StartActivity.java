@@ -2,11 +2,13 @@ package tkey99.ledattack;
 
 import tkey99.ledattack.utilities.BluetoothManager;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.TextView;
+import android.widget.Toast;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -36,9 +38,9 @@ public class StartActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		Log.d("s", "start created!");
 		super.onCreate(savedInstanceState);
 
-		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		setContentView(R.layout.start);
 
 		BluetoothManager.getInstance().enableBT(this);
@@ -61,15 +63,25 @@ public class StartActivity extends Activity {
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-			if (v == start) {
+			if (v == start && event.getAction() == MotionEvent.ACTION_DOWN) {
 				// TODO wenn tocuhlistener aktiviert kein button highlighting
 				// mehr....
-				Intent startIntent = new Intent(getApplicationContext(),
-						GameEngineActivity.class);
-				startActivityForResult(startIntent, 1);
-				return true;
-			} else if (v == manual) {
-				setContentView(R.layout.manuals);
+				if (BluetoothManager.getInstance().connect()) {
+					Intent gameIntent = new Intent(getApplicationContext(),
+							GameEngineActivity.class);
+					startActivity(gameIntent);
+					return true;
+				} else {
+					Toast.makeText(getApplicationContext(),
+							R.string.bt_not_connected, Toast.LENGTH_LONG)
+							.show();
+					return false;
+				}
+			} else if (v == manual && event.getAction() == MotionEvent.ACTION_DOWN) {
+
+				Intent manualIntent = new Intent(getApplicationContext(),
+						ManualActivity.class);
+				startActivity(manualIntent);
 				return true;
 
 			}

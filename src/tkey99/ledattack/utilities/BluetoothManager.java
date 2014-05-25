@@ -6,8 +6,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import tkey99.ledattack.R;
-import tkey99.ledattack.R.string;
-
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -85,10 +83,14 @@ public class BluetoothManager {
 				Intent btIntent = new Intent(
 						BluetoothAdapter.ACTION_REQUEST_ENABLE);
 				activity.startActivity(btIntent);
-				// TODO starts question twice
 				// TODO what happens if bluetooth is not enabled afterwards?!
 			}
+			return true;
+		}
+	}
 
+	public boolean connect() {
+		if (adapter.isEnabled()) {
 			BluetoothDevice btDevice = adapter
 					.getRemoteDevice(BLUETOOTH_ADDRESS);
 			try {
@@ -112,6 +114,7 @@ public class BluetoothManager {
 			adapter.cancelDiscovery();
 			return true;
 		}
+		return false;
 	}
 
 	/**
@@ -124,6 +127,7 @@ public class BluetoothManager {
 	public boolean send(final byte[] gamefield) {
 		if (socket != null) {
 			new Thread() {
+				@Override
 				public void run() {
 					try {
 						socket.connect();
