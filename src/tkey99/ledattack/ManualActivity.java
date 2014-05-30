@@ -12,6 +12,5 @@ public class ManualActivity extends Activity {
 		super.onCreate(savedInstanceState);
 
 		setContentView(R.layout.manuals);
-
 	}
 }

@@ -1,12 +1,37 @@
 package tkey99.ledattack.gameobjects;
 
+import tkey99.ledattack.Direction;
+import tkey99.ledattack.Gamefield;
+import tkey99.ledattack.Position;
+
 public abstract class GameObject {
 
-	private int[] position_top_left;
+	protected final byte X = Gamefield.LED_ON;
 
-	private int[] position_bottom_right;
+	protected Position position;
+	
+	public abstract byte[][] getSymbol();
 
-	public abstract boolean move(int x, int y);
+	public boolean move(Direction direction) {
+		switch (direction) {
+		case DOWN:
+			position.changePostionDown();
+			return true;
+		case LEFT:
+			position.changePostionLeft();
+			return true;
+		case RIGHT:
+			position.changePostionRight();
+			return true;
+		case UP:
+			position.changePostionUp();
+			return true;
+		default:
+			return false;
+		}
+	}
 
-	public abstract boolean spawn(int x, int y);
+	public Position getPosition() {
+		return position;
+	}
 }

@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
+import tkey99.ledattack.Gamefield;
 import tkey99.ledattack.R;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothSocket;
 import android.content.Intent;
+import android.util.Log;
 import android.widget.Toast;
 
 /**
@@ -39,12 +42,16 @@ public class BluetoothManager {
 	/**
 	 * Bluetooth address to connect to
 	 */
-	private final String BLUETOOTH_ADDRESS = "C4:85:08:3A:D3:9B";
+	private final String BLUETOOTH_ADDRESS = "5C:F3:70:09:D9:16";
 
 	/**
 	 * Bluetooth port
 	 */
 	private final int BLUETOOTH_PORT = 16;
+
+	private final int BLUETOOTH_INTENT_RESULT = 99;
+
+	private OutputStream out;
 
 	/**
 	 * Private constructor
@@ -82,21 +89,23 @@ public class BluetoothManager {
 			if (!adapter.isEnabled()) {
 				Intent btIntent = new Intent(
 						BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				activity.startActivity(btIntent);
-				// TODO what happens if bluetooth is not enabled afterwards?!
+				activity.startActivityForResult(btIntent,
+						BLUETOOTH_INTENT_RESULT);
 			}
+			connect();
 			return true;
 		}
 	}
 
-	public boolean connect() {
-		if (adapter.isEnabled()) {
+	private boolean connect() {
+		if (adapter.isEnabled() && socket == null) {
 			BluetoothDevice btDevice = adapter
 					.getRemoteDevice(BLUETOOTH_ADDRESS);
 			try {
 				Method m = btDevice.getClass().getMethod("createRfcommSocket",
 						new Class[] { int.class });
 				socket = (BluetoothSocket) m.invoke(btDevice, BLUETOOTH_PORT);
+				Log.d("bluetooth socket", "invoke success");
 			} catch (NoSuchMethodException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -112,6 +121,20 @@ public class BluetoothManager {
 			}
 
 			adapter.cancelDiscovery();
+			Log.d("bluetooth socket",socket.getRemoteDevice().getAddress());
+			try {
+				socket.connect();
+			} catch (IOException e) {
+				Log.d("bluetooth socket", e.getMessage());
+				e.printStackTrace();
+			}
+			
+			try {
+				out = socket.getOutputStream();
+			} catch (IOException e) {
+				Log.d("bluetooth stream", e.getMessage());
+				e.printStackTrace();
+			}
 			return true;
 		}
 		return false;
@@ -124,18 +147,24 @@ public class BluetoothManager {
 	 *            current gamefield
 	 * @return true if success false if not
 	 */
-	public boolean send(final byte[] gamefield) {
+	public synchronized boolean send(final byte[][] gamefield) {
 		if (socket != null) {
+			Log.d("bluetooth", "try to send");
 			new Thread() {
 				@Override
 				public void run() {
+					byte[] sendableGamefield = new byte[Gamefield.MAX_LED_X
+							* Gamefield.MAX_LED_Y];
+
+					for (int x = 0; x < gamefield.length; x++) {
+						for (int y = 0; y < gamefield[0].length; y++) {
+							sendableGamefield[x * Gamefield.MAX_LED_X + y] = gamefield[x][y];
+						}
+					}
 					try {
-						socket.connect();
-						OutputStream out = socket.getOutputStream();
-						out.write(gamefield);
-						socket.close();
+						out.write(sendableGamefield);
 					} catch (IOException e) {
-						// TODO Auto-generated catch block
+						Log.d("bluetooth stream", e.getMessage());
 						e.printStackTrace();
 					}
 				}
@@ -143,5 +172,26 @@ public class BluetoothManager {
 			return true;
 		}
 		return false;
+	}
+
+	public boolean isEnabled() {
+		if (socket == null) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+
+	public boolean closeConnection() {
+		try {
+			out.close();
+			socket.close();
+			Log.d("bluetooth", "connection closed");
+			return true;
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
 	}
 }

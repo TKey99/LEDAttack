@@ -3,15 +3,15 @@ package tkey99.ledattack;
 import tkey99.ledattack.utilities.BluetoothManager;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnTouchListener;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
+import android.hardware.Sensor;
+import android.hardware.SensorManager;
 
 /**
  * This activity is the activity started at the start of the application.
@@ -49,8 +49,52 @@ public class StartActivity extends Activity {
 		start = (Button) findViewById(R.id.start_button);
 		manual = (Button) findViewById(R.id.manual_button);
 
-		start.setOnTouchListener(new ButtonListener());
-		manual.setOnTouchListener(new ButtonListener());
+		start.setOnClickListener(new ButtonListener());
+		manual.setOnClickListener(new ButtonListener());
+	}
+
+	@Override
+	protected void onStart() {
+		super.onStart();
+
+		BluetoothManager.getInstance().send(StaticGameFields.TITLE);
+	}
+
+	@Override
+	protected void onRestart() {
+		super.onRestart();
+
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+
+		BluetoothManager.getInstance().send(StaticGameFields.TITLE);
+	}
+
+	@Override
+	protected void onPause() {
+		super.onPause();
+		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
+
+	}
+
+	@Override
+	protected void onStop() {
+		super.onStop();
+
+	}
+
+	@Override
+	protected void onDestroy() {
+		super.onDestroy();
+		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
+	}
+
+	@Override
+	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+		this.recreate();
 	}
 
 	/**
@@ -59,33 +103,26 @@ public class StartActivity extends Activity {
 	 * @author TKey99
 	 * 
 	 */
-	private class ButtonListener implements OnTouchListener {
+	private class ButtonListener implements OnClickListener {
 
 		@Override
-		public boolean onTouch(View v, MotionEvent event) {
-			if (v == start && event.getAction() == MotionEvent.ACTION_DOWN) {
-				// TODO wenn tocuhlistener aktiviert kein button highlighting
-				// mehr....
-				if (BluetoothManager.getInstance().connect()) {
+		public void onClick(View v) {
+			if (v == start) {
+				if (BluetoothManager.getInstance().isEnabled()) {
 					Intent gameIntent = new Intent(getApplicationContext(),
 							GameEngineActivity.class);
 					startActivity(gameIntent);
-					return true;
 				} else {
 					Toast.makeText(getApplicationContext(),
 							R.string.bt_not_connected, Toast.LENGTH_LONG)
 							.show();
-					return false;
 				}
-			} else if (v == manual && event.getAction() == MotionEvent.ACTION_DOWN) {
+			} else if (v == manual) {
 
 				Intent manualIntent = new Intent(getApplicationContext(),
 						ManualActivity.class);
 				startActivity(manualIntent);
-				return true;
-
 			}
-			return false;
 		}
 	}
 }
