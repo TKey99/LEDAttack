@@ -21,6 +21,14 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private ArrayList<Box> boxes;
 
+	private float sensorValue;
+
+	private final float SENSOR_VALUE_TO_MOVE = 1.5f;
+
+	private final long INTRO_WAIT_TIME = 2000;
+	
+	private boolean isIngame = false;
+
 	public LedAttackEngine(Activity activity) {
 
 		gamefield = new Gamefield();
@@ -45,41 +53,63 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			// Log.d("y", "y = " + y);
 			// Log.d("z", "z = " + z);
 			// TODO
+
+			sensorValue += x;
+
+			Log.d("gyrosensor", "" + sensorValue);
+			if (sensorValue >= SENSOR_VALUE_TO_MOVE
+					&& player.getPosition().getBottomRightX() < (Gamefield.MAX_LED_X - 1)) {
+				player.move(Direction.RIGHT);
+				Log.d("player", "move right");
+			} else if (sensorValue <= (SENSOR_VALUE_TO_MOVE * -1)
+					&& player.getPosition().getTopLeftX() > 0) {
+				player.move(Direction.LEFT);
+				Log.d("player", "move left");
+			}
 		}
 	}
 
-	public void showIntro() {
+	private void showIntro() {
 		Log.d("intro", "intro gesendet");
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_READY);
 		try {
-			sleep(2000);
+			sleep(INTRO_WAIT_TIME);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_SET);
 		try {
-			sleep(2000);
+			sleep(INTRO_WAIT_TIME);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_GO);
 		try {
-			sleep(2000);
+			sleep(INTRO_WAIT_TIME);
 		} catch (InterruptedException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 	}
+	
+	private void showGameOver() {
+		BluetoothManager.getInstance().send(StaticGameFields.GAME_OVER);
+	}
 
-	public boolean startGame() {
-		return true;
-
+	public void setGameStatus(boolean status) {
+		isIngame = status;
 	}
 
 	@Override
 	public void run() {
 		showIntro();
+		
+		while(isIngame) {
+			
+		}
 	}
+
+	// TODO in regelmäßigem abstand gamefield refreshen und senden
 }

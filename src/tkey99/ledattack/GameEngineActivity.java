@@ -9,7 +9,11 @@ import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
+import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.CompoundButton;
+import android.widget.CompoundButton.OnCheckedChangeListener;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -40,6 +44,8 @@ public class GameEngineActivity extends Activity {
 		setContentView(R.layout.game);
 
 		statusButton = (ToggleButton) findViewById(R.id.game_status_toggle);
+		statusButton.setChecked(true);
+		statusButton.setOnCheckedChangeListener(new StatusButtonListener());
 		jumpButton = (Button) findViewById(R.id.jump_button);
 		pushButton = (Button) findViewById(R.id.push_button);
 		score = (TextView) findViewById(R.id.game_score_value);
@@ -53,10 +59,6 @@ public class GameEngineActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 
-		sensorManager.registerListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-				SensorManager.SENSOR_DELAY_NORMAL);
-
 		engine.start();
 	}
 
@@ -64,9 +66,6 @@ public class GameEngineActivity extends Activity {
 	protected void onRestart() {
 		super.onRestart();
 
-		sensorManager.registerListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-				SensorManager.SENSOR_DELAY_NORMAL);
 	}
 
 	@Override
@@ -90,15 +89,25 @@ public class GameEngineActivity extends Activity {
 	protected void onStop() {
 		super.onStop();
 
-		sensorManager.unregisterListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
 	}
 
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
 
-		sensorManager.unregisterListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
+	}
+	
+	private class StatusButtonListener implements OnCheckedChangeListener {
+
+		@Override
+		public void onCheckedChanged(CompoundButton buttonView,
+				boolean isChecked) {
+			if(isChecked == true) {
+				engine.setGameStatus(true);
+			} else {
+				engine.setGameStatus(false);
+			}
+		}
+
 	}
 }
