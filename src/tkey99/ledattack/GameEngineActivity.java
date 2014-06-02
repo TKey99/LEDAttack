@@ -1,5 +1,6 @@
 package tkey99.ledattack;
 
+import tkey99.ledattack.utilities.BluetoothManager;
 import android.R.color;
 import android.R.drawable;
 import android.R.style;
@@ -51,7 +52,6 @@ public class GameEngineActivity extends Activity {
 		setContentView(R.layout.game);
 
 		statusButton = (ToggleButton) findViewById(R.id.game_status_toggle);
-		statusButton.setChecked(true);
 		statusButton.setOnCheckedChangeListener(new StatusButtonListener());
 		jumpButton = (Button) findViewById(R.id.jump_button);
 		jumpButton.setOnClickListener(new JumpButtonListener());
@@ -59,7 +59,7 @@ public class GameEngineActivity extends Activity {
 		pushButton.setOnTouchListener(new PushButtonListener());
 		score = (TextView) findViewById(R.id.game_score_value);
 
-		engine = new LedAttackEngine(this);
+		engine = new LedAttackEngine();
 
 		sensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
 	}
@@ -81,17 +81,15 @@ public class GameEngineActivity extends Activity {
 	protected void onResume() {
 		super.onResume();
 
-		sensorManager.registerListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
-				SensorManager.SENSOR_DELAY_NORMAL);
+		statusButton.setChecked(true);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
-		
-		sensorManager.unregisterListener(engine,
-				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
+
+		statusButton.setChecked(false);
+		BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
 	}
 
 	@Override
@@ -105,41 +103,66 @@ public class GameEngineActivity extends Activity {
 		super.onDestroy();
 
 	}
-	
+
+	/**
+	 * Listener for the status button
+	 * 
+	 * @author TKey99
+	 * 
+	 */
 	private class StatusButtonListener implements OnCheckedChangeListener {
+
+		// TODO sensor einrichten.....
 
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView,
 				boolean isChecked) {
-			if(isChecked == true) {
-				engine.setGameStatus(true);
+			if (isChecked == true) {
+				engine.setIngameStatus(true);
+				sensorManager.registerListener(engine, sensorManager
+						.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR),
+						SensorManager.SENSOR_DELAY_GAME);
 			} else {
-				engine.setGameStatus(false);
+				engine.setIngameStatus(false);
+				sensorManager.unregisterListener(engine, sensorManager
+						.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR));
 			}
 		}
 	}
-	
+
+	/**
+	 * Listener for the jump button
+	 * 
+	 * @author TKey99
+	 * 
+	 */
 	private class JumpButtonListener implements OnClickListener {
 
 		@Override
 		public void onClick(View v) {
-			
+
 		}
 	}
-	
+
+	/**
+	 * Listener for the push button
+	 * 
+	 * @author TKey99
+	 * 
+	 */
 	private class PushButtonListener implements OnTouchListener {
 
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
-			if(event.getAction() == MotionEvent.ACTION_DOWN) {
+			if (event.getAction() == MotionEvent.ACTION_DOWN) {
 				engine.changePushStatus(true);
 				return true;
-			} else if(event.getAction() == MotionEvent.ACTION_UP) {
+			} else if (event.getAction() == MotionEvent.ACTION_UP) {
 				engine.changePushStatus(false);
 				return true;
 			}
 			return false;
 		}
-		
+
 	}
 }

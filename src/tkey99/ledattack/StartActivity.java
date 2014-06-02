@@ -90,7 +90,10 @@ public class StartActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 
-		BluetoothManager.getInstance().closeConnection();
+		// if app is closing
+		if(isFinishing()) {
+			BluetoothManager.getInstance().closeConnection();
+		}
 	}
 
 	@Override

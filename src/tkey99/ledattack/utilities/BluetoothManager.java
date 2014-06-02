@@ -49,8 +49,14 @@ public class BluetoothManager {
 	 */
 	private final int BLUETOOTH_PORT = 16;
 
+	/**
+	 * Request code for the bluetooth intent
+	 */
 	private final int BLUETOOTH_INTENT_RESULT = 99;
 
+	/**
+	 * Outputstream to send data through
+	 */
 	private OutputStream out;
 
 	/**
@@ -77,7 +83,7 @@ public class BluetoothManager {
 	 * 
 	 * @param activity
 	 *            calling activity
-	 * @return true if connected false if not
+	 * @return true if enabled false if not
 	 */
 	public boolean enableBT(Activity activity) {
 		adapter = BluetoothAdapter.getDefaultAdapter();
@@ -86,14 +92,17 @@ public class BluetoothManager {
 					Toast.LENGTH_LONG).show();
 			return false;
 		} else {
-				Intent btIntent = new Intent(
-						BluetoothAdapter.ACTION_REQUEST_ENABLE);
-				activity.startActivityForResult(btIntent,
-						BLUETOOTH_INTENT_RESULT);
-				return true;
+			Intent btIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+			activity.startActivityForResult(btIntent, BLUETOOTH_INTENT_RESULT);
+			return true;
 		}
 	}
 
+	/**
+	 * Connects to a bluetooth device
+	 * 
+	 * @return true if connected false if not
+	 */
 	public boolean connect() {
 		if (adapter.isEnabled() && socket == null) {
 			BluetoothDevice btDevice = adapter
@@ -104,28 +113,24 @@ public class BluetoothManager {
 				socket = (BluetoothSocket) m.invoke(btDevice, BLUETOOTH_PORT);
 				Log.d("bluetooth socket", "invoke success");
 			} catch (NoSuchMethodException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalArgumentException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (IllegalAccessException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			} catch (InvocationTargetException e) {
-				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
 
 			adapter.cancelDiscovery();
-			Log.d("bluetooth socket",socket.getRemoteDevice().getAddress());
+			Log.d("bluetooth socket", socket.getRemoteDevice().getAddress());
 			try {
 				socket.connect();
 			} catch (IOException e) {
 				Log.d("bluetooth socket", e.getMessage());
 				e.printStackTrace();
 			}
-			
+
 			try {
 				out = socket.getOutputStream();
 			} catch (IOException e) {
@@ -171,6 +176,11 @@ public class BluetoothManager {
 		return false;
 	}
 
+	/**
+	 * Returns whether the bluetooth socket is set or not
+	 * 
+	 * @return true if socket set false otherwise
+	 */
 	public boolean isEnabled() {
 		if (socket == null) {
 			return false;
@@ -179,6 +189,11 @@ public class BluetoothManager {
 		}
 	}
 
+	/**
+	 * Closes the bluetooth connection
+	 * 
+	 * @return true if closed false otherwise
+	 */
 	public boolean closeConnection() {
 		try {
 			out.close();
@@ -186,7 +201,6 @@ public class BluetoothManager {
 			Log.d("bluetooth", "connection closed");
 			return true;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}

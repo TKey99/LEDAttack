@@ -3,13 +3,23 @@ package tkey99.ledattack.gameobjects;
 import tkey99.ledattack.Gamefield;
 import tkey99.ledattack.Position;
 
+/**
+ * Represents a box in the game.
+ * 
+ * @author TKey99
+ * 
+ */
 public class Box extends GameObject {
 
-	private final byte[][] SYMBOL = new byte[][] { 
-			{ X, X, X }, 
-			{ X, 0, X },
+	/**
+	 * Symbol of the box
+	 */
+	private final byte[][] SYMBOL = new byte[][] { { X, X, X }, { X, 0, X },
 			{ X, X, X } };
 
+	/**
+	 * Constructs a new box
+	 */
 	public Box() {
 		int spawnTopLeftX = (int) (Math.random() * (Gamefield.MAX_LED_X
 				- SYMBOL[0].length - 1));
