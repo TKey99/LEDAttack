@@ -4,6 +4,8 @@ import tkey99.ledattack.Gamefield;
 import tkey99.ledattack.Position;
 
 public class Player extends GameObject {
+	
+	private boolean isPushing;
 
 	private final byte[][] SYMBOL = new byte[][] { 
 			{ X, X, X }, 
@@ -13,11 +15,21 @@ public class Player extends GameObject {
 			{ 0, X, 0 }, 
 			{ 0, X, 0 } };
 
+	public boolean isPushing() {
+		return isPushing;
+	}
+
+	public void setPushing(boolean isPushing) {
+		this.isPushing = isPushing;
+	}
+
 	public Player() {
 		position = new Position((Gamefield.MAX_LED_X / 2),
 				(Gamefield.MAX_LED_Y - 1) - (SYMBOL.length - 1),
 				(Gamefield.MAX_LED_X / 2) + (SYMBOL[0].length - 1),
 				Gamefield.MAX_LED_Y - 1);
+		
+		isPushing = false;
 	}
 
 	public boolean isHead(int bottomRightX, int bottomRightY) {

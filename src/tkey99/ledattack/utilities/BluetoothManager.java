@@ -86,18 +86,15 @@ public class BluetoothManager {
 					Toast.LENGTH_LONG).show();
 			return false;
 		} else {
-			if (!adapter.isEnabled()) {
 				Intent btIntent = new Intent(
 						BluetoothAdapter.ACTION_REQUEST_ENABLE);
 				activity.startActivityForResult(btIntent,
 						BLUETOOTH_INTENT_RESULT);
-			}
-			connect();
-			return true;
+				return true;
 		}
 	}
 
-	private boolean connect() {
+	public boolean connect() {
 		if (adapter.isEnabled() && socket == null) {
 			BluetoothDevice btDevice = adapter
 					.getRemoteDevice(BLUETOOTH_ADDRESS);

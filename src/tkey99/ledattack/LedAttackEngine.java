@@ -49,12 +49,9 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			float y = event.values[1];
 			float z = event.values[2];
 
-			// Log.d("x", "x = " + x);
-			// Log.d("y", "y = " + y);
-			// Log.d("z", "z = " + z);
-			// TODO
-
 			sensorValue += x;
+			
+			// TODO push einrichten evtl unten stehendes in priavte methode auslagern
 
 			Log.d("gyrosensor", "" + sensorValue);
 			if (sensorValue >= SENSOR_VALUE_TO_MOVE
@@ -109,6 +106,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		while(isIngame) {
 			
 		}
+	}
+	
+	public void changePushStatus(boolean status) {
+		player.setPushing(status);
 	}
 
 	// TODO in regelmäßigem abstand gamefield refreshen und senden

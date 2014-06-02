@@ -56,4 +56,8 @@ public class Gamefield {
 		}
 		return true;
 	}
+
+	public byte[][] getGamefield() {
+		return gamefield;
+	}
 }

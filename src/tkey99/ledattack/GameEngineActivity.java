@@ -1,16 +1,23 @@
 package tkey99.ledattack;
 
+import android.R.color;
+import android.R.drawable;
+import android.R.style;
 import android.app.Activity;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
+import android.graphics.Color;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
+import android.text.style.BackgroundColorSpan;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.view.View.OnTouchListener;
 import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.CompoundButton.OnCheckedChangeListener;
@@ -47,7 +54,9 @@ public class GameEngineActivity extends Activity {
 		statusButton.setChecked(true);
 		statusButton.setOnCheckedChangeListener(new StatusButtonListener());
 		jumpButton = (Button) findViewById(R.id.jump_button);
+		jumpButton.setOnClickListener(new JumpButtonListener());
 		pushButton = (Button) findViewById(R.id.push_button);
+		pushButton.setOnTouchListener(new PushButtonListener());
 		score = (TextView) findViewById(R.id.game_score_value);
 
 		engine = new LedAttackEngine(this);
@@ -80,7 +89,7 @@ public class GameEngineActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-
+		
 		sensorManager.unregisterListener(engine,
 				sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
 	}
@@ -108,6 +117,29 @@ public class GameEngineActivity extends Activity {
 				engine.setGameStatus(false);
 			}
 		}
+	}
+	
+	private class JumpButtonListener implements OnClickListener {
 
+		@Override
+		public void onClick(View v) {
+			
+		}
+	}
+	
+	private class PushButtonListener implements OnTouchListener {
+
+		@Override
+		public boolean onTouch(View v, MotionEvent event) {
+			if(event.getAction() == MotionEvent.ACTION_DOWN) {
+				engine.changePushStatus(true);
+				return true;
+			} else if(event.getAction() == MotionEvent.ACTION_UP) {
+				engine.changePushStatus(false);
+				return true;
+			}
+			return false;
+		}
+		
 	}
 }

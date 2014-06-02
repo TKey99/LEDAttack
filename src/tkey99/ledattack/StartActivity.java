@@ -57,7 +57,6 @@ public class StartActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 
-		BluetoothManager.getInstance().send(StaticGameFields.TITLE);
 	}
 
 	@Override
@@ -76,6 +75,7 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
+
 		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
 
 	}
@@ -89,12 +89,16 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onDestroy() {
 		super.onDestroy();
-		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
+
+		BluetoothManager.getInstance().closeConnection();
 	}
 
 	@Override
 	protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-		this.recreate();
+		if (resultCode == RESULT_OK) {
+			BluetoothManager.getInstance().connect();
+			BluetoothManager.getInstance().send(StaticGameFields.TITLE);
+		}
 	}
 
 	/**
