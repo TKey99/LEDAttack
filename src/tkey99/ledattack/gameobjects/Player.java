@@ -47,31 +47,28 @@ public class Player extends GameObject {
 	/**
 	 * Returns whether a box hits the head or not
 	 * 
-	 * @param bottomRightX
-	 * @param bottomRightY
-	 * @return
+	 * @param boxPosition
+	 *            position of the box that hits maybe
+	 * @return true if hit, false otherwise
 	 */
 	public boolean isHead(Position boxPosition) {
+		int testY = boxPosition.getBottomRightY() + 1;
+		int testX = boxPosition.getBottomRightX();
+		if (testY == position.getTopLeftY()) {
+			if (testX == position.getTopLeftX()
+					|| testX == position.getTopLeftX() + 1
+					|| testX == position.getBottomRightX()
+					|| testX - 1 == position.getBottomRightX()
+					|| testX - 2 == position.getBottomRightX()) {
+				return true;
+			}
+		}
 		return false;
 	}
 
 	@Override
 	public byte[][] getSymbol() {
 		return SYMBOL;
-	}
-
-	public boolean isLeft() {
-		if (position.getTopLeftX() <= 0) {
-			return true;
-		}
-		return false;
-	}
-
-	public boolean isRight() {
-		if (position.getBottomRightX() >= Gamefield.MAX_LED_X - 1) {
-			return true;
-		}
-		return false;
 	}
 
 	public boolean isTop() {

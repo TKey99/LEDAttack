@@ -138,8 +138,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void run() {
+		// TODO score updaten
 		showIntro();
 
+		boxes.add(new Box());
 		boxes.add(new Box());
 		boxes.add(new Box());
 		while (true) {
@@ -153,19 +155,20 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			// move left or right player and try to push
 			movePlayerLeftRight();
 
-			// move boxes and check if player is dead
+			// move boxes
 			moveBoxesDown();
-			if (gameStatus == GameStatus.GAME_OVER) {
-				showGameOver();
-				return;
-			}
 
-			// eventually spawn box#
-			spawnBox();
+			// eventually spawn box
+			// spawnBox();
 
 			// send gamefield
 			gamefield.refresh(boxes, player);
 			BluetoothManager.getInstance().send(gamefield.getGamefield());
+
+			if (gameStatus == GameStatus.GAME_OVER) {
+				showGameOver();
+				return;
+			}
 
 			// TODO enhance code
 			if (gameStatus == GameStatus.PAUSE) {
@@ -179,6 +182,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				}
 			}
 
+			// loop wait
 			try {
 				sleep(LOOP_WAIT_TIME);
 			} catch (InterruptedException e1) {
@@ -197,9 +201,15 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		player.setPushing(status);
 	}
 
+	/**
+	 * Changes the jump status
+	 * 
+	 * @param status
+	 *            status to set
+	 */
 	public void changeJumping(boolean status) {
 		int testBotX = player.getPosition().getBottomRightX();
-		int testBotY = player.getPosition().getBottomRightY();
+		int testBotY = player.getPosition().getBottomRightY() + 1;
 		if (status) {
 			if (player.isAtBottom()
 					|| gamefield.getGamefield()[testBotY][testBotX] == Gamefield.LED_ON
@@ -213,7 +223,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	}
 
 	/**
-	 * Sets the ingame status
+	 * Sets the game status
 	 * 
 	 * @param status
 	 *            status to set
@@ -223,10 +233,23 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	}
 
 	/**
-	 * Spawns a new box at a random time
+	 * Spawns a new box at a random time, if box spawns in a box because an old
+	 * box is lying there, game over
 	 */
 	private void spawnBox() {
-
+		// TODO Spawntimer
+		Box box = new Box();
+		int testY = box.getPosition().getTopLeftY();
+		int testX = box.getPosition().getTopLeftX();
+		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
+			Box current = iter.next();
+			if (current.getPosition().getBottomRightX() == testX
+					|| current.getPosition().getBottomRightY() == testY) {
+				gameStatus = GameStatus.GAME_OVER;
+				return;
+			}
+		}
+		boxes.add(box);
 	}
 
 	/**
@@ -234,30 +257,80 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 * the push button and boxes can be pushed
 	 */
 	private void movePlayerLeftRight() {
-		// TODO pushen einfügen
 		int testXTop = player.getPosition().getTopLeftX() - 1;
-		int xBot = player.getPosition().getBottomRightX() + 1;
-		int yTop = player.getPosition().getTopLeftY();
-		int yBot = player.getPosition().getBottomRightY();
+		int testXBot = player.getPosition().getBottomRightX() + 1;
+		int testYTop = player.getPosition().getTopLeftY();
+		int testYBot = player.getPosition().getBottomRightY();
 		if (sensorValue >= SENSOR_VALUE_TO_MOVE) {
 			if (!player.isRight()) {
-				if (gamefield.getGamefield()[yBot][xBot] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[yTop
-								+ player.getSymbol().length / 2][xBot] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[yTop][xBot] == Gamefield.LED_OFF) {
+				if (gamefield.getGamefield()[testYBot][testXBot] == Gamefield.LED_OFF
+						&& gamefield.getGamefield()[testYTop
+								+ player.getSymbol().length / 2][testXBot] == Gamefield.LED_OFF
+						&& gamefield.getGamefield()[testYTop][testXBot] == Gamefield.LED_OFF) {
 					player.move(Direction.RIGHT);
 					Log.d("player", "move right");
+				} else {
+					if (player.isPushing()) {
+						tryToPushRight();
+					}
 				}
 			}
 		} else if (sensorValue <= (SENSOR_VALUE_TO_MOVE * -1)) {
 			if (!player.isLeft()) {
-				if (gamefield.getGamefield()[yTop][testXTop] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[yTop
+				if (gamefield.getGamefield()[testYTop][testXTop] == Gamefield.LED_OFF
+						&& gamefield.getGamefield()[testYTop
 								+ player.getSymbol().length / 2][testXTop] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[yBot][testXTop] == Gamefield.LED_OFF) {
+						&& gamefield.getGamefield()[testYBot][testXTop] == Gamefield.LED_OFF) {
 					player.move(Direction.LEFT);
 					Log.d("player", "move left");
+				} else {
+					if (player.isPushing()) {
+						tryToPushLeft();
+					}
 				}
+			}
+		}
+	}
+
+	/**
+	 * Tries to push a box to the right
+	 */
+	private void tryToPushRight() {
+		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
+			Box current = iter.next();
+			if (current.getPosition().getBottomRightX()
+					- current.getSymbol()[0].length == player.getPosition()
+					.getBottomRightX()) {
+				if (!current.isRight()
+						&& gamefield.getGamefield()[current.getPosition()
+								.getBottomRightY()][current.getPosition()
+								.getBottomRightX() + 1] == Gamefield.LED_OFF) {
+					current.move(Direction.RIGHT);
+					player.move(Direction.RIGHT);
+				}
+				return;
+			}
+		}
+	}
+
+	/**
+	 * Tries to push a box to the left
+	 */
+	private void tryToPushLeft() {
+		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
+			Box current = iter.next();
+			if (current.getPosition().getBottomRightX() == player
+					.getPosition().getBottomRightX()
+					- player.getSymbol()[0].length) {
+				if (!current.isLeft()
+						&& gamefield.getGamefield()[current.getPosition()
+								.getBottomRightY()][current.getPosition()
+								.getBottomRightX()
+								- current.getSymbol()[0].length] == Gamefield.LED_OFF) {
+					current.move(Direction.LEFT);
+					player.move(Direction.LEFT);
+				}
+				return;
 			}
 		}
 	}

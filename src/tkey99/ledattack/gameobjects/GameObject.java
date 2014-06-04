@@ -86,4 +86,18 @@ public abstract class GameObject {
 		}
 		return false;
 	}
+	
+	public boolean isLeft() {
+		if (position.getTopLeftX() <= 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isRight() {
+		if (position.getBottomRightX() >= Gamefield.MAX_LED_X - 1) {
+			return true;
+		}
+		return false;
+	}
 }
