@@ -76,7 +76,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private final int JUMP_HEIGHT = 3;
 
-	private int jumpCounter = 0;
+	private int jumpCounter;
 
 	UpdateListener updateListener;
 
@@ -88,6 +88,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		gamefield = new Gamefield();
 		player = new Player();
 		boxes = new ArrayList<Box>();
+		jumpCounter = JUMP_HEIGHT;
 	}
 
 	@Override
@@ -383,14 +384,12 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		int testBotX = player.getPosition().getBottomRightX();
 		int testBotY = player.getPosition().getBottomRightY() + 1;
 		if (player.isJumping()) {
-			if (jumpCounter <= 0) {
-				jumpCounter = JUMP_HEIGHT;
-			}
 			if (!player.isTop()) {
 				player.move(Direction.UP);
 				jumpCounter--;
 				if (jumpCounter <= 0) {
 					changeJumping(false);
+					jumpCounter = JUMP_HEIGHT;
 				}
 			}
 		} else {
@@ -413,5 +412,9 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	public void setUpdateListener(UpdateListener listener) {
 		updateListener = listener;
+	}
+
+	public GameStatus getGameStatus() {
+		return gameStatus;
 	}
 }

@@ -32,7 +32,5 @@ public class ManualActivity extends Activity {
 	protected void onPause() {
 		super.onPause();
 
-		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
-
 	}
 }

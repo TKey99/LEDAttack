@@ -11,6 +11,10 @@ public class ScoreActivity extends Activity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+		super.onCreate(savedInstanceState);
+
+		setContentView(R.layout.score);
+
 		score = (TextView) findViewById(R.id.score_final);
 		score.setText(getIntent().getStringExtra("Score"));
 	}

@@ -1,20 +1,12 @@
 package tkey99.ledattack;
 
 import tkey99.ledattack.utilities.BluetoothManager;
-import android.R.color;
-import android.R.drawable;
-import android.R.style;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
-import android.graphics.Color;
 import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 import android.os.Bundle;
-import android.text.style.BackgroundColorSpan;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
@@ -40,7 +32,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 
 	private Button pushButton;
 
-	private TextView score;
+	private TextView scoreView;
 
 	private LedAttackEngine engine;
 
@@ -58,7 +50,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		jumpButton.setOnClickListener(new JumpButtonListener());
 		pushButton = (Button) findViewById(R.id.push_button);
 		pushButton.setOnTouchListener(new PushButtonListener());
-		score = (TextView) findViewById(R.id.game_score_value);
+		scoreView = (TextView) findViewById(R.id.game_score_value);
 
 		engine = new LedAttackEngine();
 
@@ -90,8 +82,10 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 	protected void onPause() {
 		super.onPause();
 
+		if (engine.getGameStatus() == GameStatus.PAUSE) {
+			BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
+		}
 		statusButton.setChecked(false);
-		BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
 	}
 
 	@Override
@@ -113,8 +107,6 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 	 * 
 	 */
 	private class StatusButtonListener implements OnCheckedChangeListener {
-
-		// TODO sensor einrichten.....
 
 		@Override
 		public void onCheckedChanged(CompoundButton buttonView,
@@ -172,13 +164,17 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 	public void changeToScoreActivity() {
 		Intent scoreIntent = new Intent(getApplicationContext(),
 				ScoreActivity.class);
-		scoreIntent.putExtra("Score", this.score.getText());
+		scoreIntent.putExtra("Score", this.scoreView.getText());
 		startActivity(scoreIntent);
 		this.finish();
 	}
 
 	@Override
-	public void updateScore(int score) {
-		this.score.setText(String.valueOf(score));
+	public void updateScore(final int score) {
+		runOnUiThread(new Runnable() {
+			public void run() {
+				scoreView.setText(String.valueOf(score));
+			}
+		});
 	}
 }

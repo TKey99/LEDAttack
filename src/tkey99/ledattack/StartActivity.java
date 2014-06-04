@@ -75,9 +75,6 @@ public class StartActivity extends Activity {
 	@Override
 	protected void onPause() {
 		super.onPause();
-
-		BluetoothManager.getInstance().send(StaticGameFields.EMPTY);
-
 	}
 
 	@Override
@@ -91,7 +88,7 @@ public class StartActivity extends Activity {
 		super.onDestroy();
 
 		// if app is closing
-		if(isFinishing()) {
+		if (isFinishing()) {
 			BluetoothManager.getInstance().closeConnection();
 		}
 	}
@@ -131,5 +128,13 @@ public class StartActivity extends Activity {
 				startActivity(manualIntent);
 			}
 		}
+	}
+
+	@Override
+	public void onBackPressed() {
+		// super.onBackPressed();
+
+		// does not finish activity on back pressed
+		moveTaskToBack(true);
 	}
 }
