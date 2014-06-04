@@ -16,11 +16,13 @@ public class Player extends GameObject {
 	 */
 	private boolean isPushing;
 
+	private boolean isJumping;
+
 	/**
 	 * Symbol of the player
 	 */
 	private final byte[][] SYMBOL = new byte[][] { { X, X, X }, { X, X, X },
-			{ 0, X, 0 }, { X, X, X }, { 0, X, 0 }, { 0, X, 0 } };
+			{ 0, X, 0 }, { X, X, X }, { 0, X, 0 }, { X, 0, X } };
 
 	public boolean isPushing() {
 		return isPushing;
@@ -49,12 +51,41 @@ public class Player extends GameObject {
 	 * @param bottomRightY
 	 * @return
 	 */
-	public boolean isHead(int bottomRightX, int bottomRightY) {
+	public boolean isHead(Position boxPosition) {
 		return false;
 	}
 
 	@Override
 	public byte[][] getSymbol() {
 		return SYMBOL;
+	}
+
+	public boolean isLeft() {
+		if (position.getTopLeftX() <= 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isRight() {
+		if (position.getBottomRightX() >= Gamefield.MAX_LED_X - 1) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isTop() {
+		if (position.getTopLeftY() <= 0) {
+			return true;
+		}
+		return false;
+	}
+
+	public boolean isJumping() {
+		return isJumping;
+	}
+
+	public void setJumping(boolean isJumping) {
+		this.isJumping = isJumping;
 	}
 }

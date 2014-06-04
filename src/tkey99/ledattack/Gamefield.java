@@ -40,8 +40,8 @@ public class Gamefield {
 	 */
 	private byte[][] gamefield;
 
-	// erster array zeile
-	// zweiter array spalte
+	// y zeile
+	// x spalte
 
 	/**
 	 * Constructs a new gamefield

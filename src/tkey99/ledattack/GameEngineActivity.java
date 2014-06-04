@@ -118,14 +118,14 @@ public class GameEngineActivity extends Activity {
 		public void onCheckedChanged(CompoundButton buttonView,
 				boolean isChecked) {
 			if (isChecked == true) {
-				engine.setIngameStatus(true);
-				sensorManager.registerListener(engine, sensorManager
-						.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR),
+				engine.setGameStatus(GameStatus.INGAME);
+				sensorManager.registerListener(engine,
+						sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
 						SensorManager.SENSOR_DELAY_GAME);
 			} else {
-				engine.setIngameStatus(false);
-				sensorManager.unregisterListener(engine, sensorManager
-						.getDefaultSensor(Sensor.TYPE_GAME_ROTATION_VECTOR));
+				engine.setGameStatus(GameStatus.PAUSE);
+				sensorManager.unregisterListener(engine,
+						sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
 			}
 		}
 	}
@@ -140,7 +140,7 @@ public class GameEngineActivity extends Activity {
 
 		@Override
 		public void onClick(View v) {
-
+			engine.changeJumping(true);
 		}
 	}
 
@@ -155,10 +155,10 @@ public class GameEngineActivity extends Activity {
 		@Override
 		public boolean onTouch(View v, MotionEvent event) {
 			if (event.getAction() == MotionEvent.ACTION_DOWN) {
-				engine.changePushStatus(true);
+				engine.changePushing(true);
 				return true;
 			} else if (event.getAction() == MotionEvent.ACTION_UP) {
-				engine.changePushStatus(false);
+				engine.changePushing(false);
 				return true;
 			}
 			return false;

@@ -39,8 +39,12 @@ public abstract class GameObject {
 	public boolean move(Direction direction) {
 		switch (direction) {
 		case DOWN:
-			position.changePostionDown();
-			return true;
+			if (position.getBottomRightY() < Gamefield.MAX_LED_Y - 1) {
+				position.changePostionDown();
+				return true;
+			} else {
+				return false;
+			}
 		case LEFT:
 			if (position.getTopLeftX() > 0) {
 				position.changePostionLeft();
@@ -56,8 +60,12 @@ public abstract class GameObject {
 				return false;
 			}
 		case UP:
-			position.changePostionUp();
-			return true;
+			if (position.getTopLeftY() > 0) {
+				position.changePostionUp();
+				return true;
+			} else {
+				return false;
+			}
 		default:
 			return false;
 		}
@@ -70,5 +78,12 @@ public abstract class GameObject {
 	 */
 	public Position getPosition() {
 		return position;
+	}
+
+	public boolean isAtBottom() {
+		if (position.getBottomRightY() >= Gamefield.MAX_LED_Y - 1) {
+			return true;
+		}
+		return false;
 	}
 }
