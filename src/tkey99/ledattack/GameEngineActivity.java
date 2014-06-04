@@ -6,6 +6,7 @@ import android.R.drawable;
 import android.R.style;
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.graphics.Color;
 import android.hardware.Sensor;
@@ -31,7 +32,7 @@ import android.widget.ToggleButton;
  * @author TKey99
  * 
  */
-public class GameEngineActivity extends Activity {
+public class GameEngineActivity extends Activity implements UpdateListener {
 
 	private ToggleButton statusButton;
 
@@ -68,6 +69,7 @@ public class GameEngineActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 
+		engine.setUpdateListener(this);
 		engine.start();
 	}
 
@@ -164,5 +166,19 @@ public class GameEngineActivity extends Activity {
 			return false;
 		}
 
+	}
+
+	@Override
+	public void changeToScoreActivity() {
+		Intent scoreIntent = new Intent(getApplicationContext(),
+				ScoreActivity.class);
+		scoreIntent.putExtra("Score", this.score.getText());
+		startActivity(scoreIntent);
+		this.finish();
+	}
+
+	@Override
+	public void updateScore(int score) {
+		this.score.setText(String.valueOf(score));
 	}
 }

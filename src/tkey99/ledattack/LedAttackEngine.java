@@ -78,6 +78,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private int jumpCounter = 0;
 
+	UpdateListener updateListener;
+
 	/**
 	 * Constructs a new engine
 	 */
@@ -129,13 +131,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		}
 	}
 
-	/**
-	 * Sends the game over screen to the led matrix
-	 */
-	private void showGameOver() {
-		BluetoothManager.getInstance().send(StaticGameFields.GAME_OVER);
-	}
-
 	@Override
 	public void run() {
 		// TODO score updaten
@@ -166,7 +161,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			BluetoothManager.getInstance().send(gamefield.getGamefield());
 
 			if (gameStatus == GameStatus.GAME_OVER) {
-				showGameOver();
+				notifyUpdateListener();
 				return;
 			}
 
@@ -319,9 +314,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private void tryToPushLeft() {
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
-			if (current.getPosition().getBottomRightX() == player
-					.getPosition().getBottomRightX()
-					- player.getSymbol()[0].length) {
+			if (current.getPosition().getBottomRightX() == player.getPosition()
+					.getBottomRightX() - player.getSymbol()[0].length) {
 				if (!current.isLeft()
 						&& gamefield.getGamefield()[current.getPosition()
 								.getBottomRightY()][current.getPosition()
@@ -357,6 +351,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 						if (player.isJumping()) {
 							boxes.remove(current);
 							score += SCORE_BONUS_BOX_DESTROYED;
+							notifyUpdateListener();
 						} else {
 							setGameStatus(GameStatus.GAME_OVER);
 						}
@@ -377,6 +372,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					boxes.remove(current);
 			}
 			score += SCORE_BONUS_FULL_ROW;
+			notifyUpdateListener();
 		}
 	}
 
@@ -406,5 +402,16 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				}
 			}
 		}
+	}
+
+	private void notifyUpdateListener() {
+		updateListener.updateScore(score);
+		if (gameStatus == GameStatus.GAME_OVER) {
+			updateListener.changeToScoreActivity();
+		}
+	}
+
+	public void setUpdateListener(UpdateListener listener) {
+		updateListener = listener;
 	}
 }

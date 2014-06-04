@@ -36,6 +36,7 @@
             android:screenOrientation="landscape"
             android:theme="@android:style/Theme.NoTitleBar.Fullscreen" >
         </activity>
+        <activity android:name="tkey99.ledattack.ScoreActivity" android:theme="@android:style/Theme.NoTitleBar.Fullscreen" android:screenOrientation="landscape"></activity>
     </application>
 
 </manifest>
