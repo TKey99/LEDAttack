@@ -1,8 +1,8 @@
 package tkey99.ledattack;
 
-import java.util.Calendar;
-
 import tkey99.ledattack.utilities.BluetoothManager;
+import tkey99.ledattack.utilities.SoundManager;
+import tkey99.ledattack.utilities.VibrationManager;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -12,8 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
 import android.content.Intent;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 
 /**
  * This activity is the activity started at the start of the application.
@@ -59,6 +57,8 @@ public class StartActivity extends Activity {
 	protected void onStart() {
 		super.onStart();
 
+		VibrationManager.initialize(this);
+		SoundManager.initialize(this);
 	}
 
 	@Override

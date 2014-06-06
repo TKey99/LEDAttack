@@ -1,6 +1,7 @@
 package tkey99.ledattack;
 
 import tkey99.ledattack.utilities.BluetoothManager;
+import tkey99.ledattack.utilities.SoundManager;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
@@ -65,6 +66,9 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 
 		if (!engine.isAlive()) {
 			engine.start();
+			sensorManager.registerListener(engine,
+					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+					SensorManager.SENSOR_DELAY_GAME);
 		}
 	}
 

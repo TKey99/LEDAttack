@@ -2,19 +2,16 @@ package tkey99.ledattack;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.Iterator;
-import java.util.Timer;
 
 import tkey99.ledattack.gameobjects.Box;
 import tkey99.ledattack.gameobjects.Player;
 import tkey99.ledattack.utilities.BluetoothManager;
-import android.app.Activity;
-import android.content.Context;
+import tkey99.ledattack.utilities.SoundManager;
+import tkey99.ledattack.utilities.VibrationManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.util.Log;
 
 /**
@@ -140,7 +137,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void run() {
-		// TODO score updaten
 		showIntro();
 
 		while (true) {
@@ -165,6 +161,21 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			BluetoothManager.getInstance().send(gamefield.getGamefield());
 
 			if (gameStatus == GameStatus.GAME_OVER) {
+				VibrationManager.getInstance().vibrate();
+				try {
+					sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				VibrationManager.getInstance().vibrate();
+				try {
+					sleep(1000);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				VibrationManager.getInstance().vibrate();
 				notifyUpdateListener();
 				return;
 			}
@@ -215,6 +226,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					|| gamefield.getGamefield()[testBotY][testBotX - 1] == Gamefield.LED_ON
 					|| gamefield.getGamefield()[testBotY][testBotX - 2] == Gamefield.LED_ON) {
 				player.setJumping(status);
+				SoundManager.getInstance().playJump();
 			}
 		} else {
 			player.setJumping(status);
@@ -341,7 +353,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	}
 
 	/**
-	 * Moves boxes down if possible
+	 * Moves boxes down if possible or destroy them when hit player while
+	 * jumping
 	 */
 	private void moveBoxesDown() {
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
@@ -359,7 +372,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					if (current.isAtBottom()) {
 						bottomBoxCount++;
 					} else if (player.isHead(current.getPosition())) {
+						Log.d("engine", "hits head");
 						if (player.isJumping()) {
+							SoundManager.getInstance().playDestroyBox();
+							VibrationManager.getInstance().vibrate();
 							boxes.remove(current);
 							score += SCORE_BONUS_BOX_DESTROYED;
 							notifyUpdateListener();
@@ -383,6 +399,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					iter.remove();
 				}
 			}
+			VibrationManager.getInstance().vibrate();
 			score += SCORE_BONUS_FULL_ROW;
 			notifyUpdateListener();
 			bottomBoxCount = 0;
@@ -396,6 +413,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		int testBotX = player.getPosition().getBottomRightX();
 		int testBotY = player.getPosition().getBottomRightY() + 1;
 		if (player.isJumping()) {
+			Log.d("engine", "player is jumping");
 			if (!player.isTop()) {
 				player.move(Direction.UP);
 				jumpCounter--;

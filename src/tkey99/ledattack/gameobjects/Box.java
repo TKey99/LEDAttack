@@ -21,8 +21,8 @@ public class Box extends GameObject {
 	 * Constructs a new box
 	 */
 	public Box() {
-		int spawnTopLeftX = (int) (Math.random() * (Gamefield.MAX_LED_X
-				- SYMBOL[0].length - 1));
+		int spawnTopLeftX = (int) (Math.random() * 8);
+		spawnTopLeftX *= 3;
 		position = new Position(spawnTopLeftX, 0, spawnTopLeftX
 				+ SYMBOL[0].length - 1, (SYMBOL.length - 1));
 	}
