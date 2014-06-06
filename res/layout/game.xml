@@ -27,6 +27,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="0.25"
+            android:checked="true"
             android:paddingRight="20dp"
             android:textOff="@string/game_status_pause"
             android:textOn="@string/game_status_ingame" />

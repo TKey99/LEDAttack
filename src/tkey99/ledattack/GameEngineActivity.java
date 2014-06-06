@@ -62,7 +62,10 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		super.onStart();
 
 		engine.setUpdateListener(this);
-		engine.start();
+
+		if (!engine.isAlive()) {
+			engine.start();
+		}
 	}
 
 	@Override
@@ -75,16 +78,12 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 	protected void onResume() {
 		super.onResume();
 
-		statusButton.setChecked(true);
 	}
 
 	@Override
 	protected void onPause() {
 		super.onPause();
 
-		if (engine.getGameStatus() == GameStatus.PAUSE) {
-			BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
-		}
 		statusButton.setChecked(false);
 	}
 
@@ -98,6 +97,10 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 	protected void onDestroy() {
 		super.onDestroy();
 
+		// if app is closing
+		if (isFinishing()) {
+			BluetoothManager.getInstance().send(StaticGameFields.GAME_OVER);
+		}
 	}
 
 	/**
@@ -176,5 +179,10 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 				scoreView.setText(String.valueOf(score));
 			}
 		});
+	}
+
+	@Override
+	public void onBackPressed() {
+		changeToScoreActivity();
 	}
 }

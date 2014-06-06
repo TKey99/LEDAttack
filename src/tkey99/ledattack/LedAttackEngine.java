@@ -1,6 +1,7 @@
 package tkey99.ledattack;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.Timer;
@@ -57,14 +58,12 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	/**
 	 * Wait time for the game calculation
 	 */
-	private final long LOOP_WAIT_TIME = 80;
+	private final long LOOP_WAIT_TIME = 120;
 
 	/**
 	 * Provides the status of the game
 	 */
 	private GameStatus gameStatus;
-
-	private double spawnTimer = 0;
 
 	private int score = 0;
 
@@ -79,6 +78,13 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private int jumpCounter;
 
 	UpdateListener updateListener;
+
+	/**
+	 * Minimum delay of spawning boxes in milliseconds
+	 */
+	private final int MINIMUM_SPAWN_DELAY = 2000;
+
+	private long spawnTimer = 0;
 
 	/**
 	 * Constructs a new engine
@@ -137,9 +143,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		// TODO score updaten
 		showIntro();
 
-		boxes.add(new Box());
-		boxes.add(new Box());
-		boxes.add(new Box());
 		while (true) {
 
 			// eventually delete bottom boxes and increase score
@@ -155,7 +158,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			moveBoxesDown();
 
 			// eventually spawn box
-			// spawnBox();
+			spawnBox();
 
 			// send gamefield
 			gamefield.refresh(boxes, player);
@@ -233,19 +236,26 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 * box is lying there, game over
 	 */
 	private void spawnBox() {
-		// TODO Spawntimer
-		Box box = new Box();
-		int testY = box.getPosition().getTopLeftY();
-		int testX = box.getPosition().getTopLeftX();
-		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
-			Box current = iter.next();
-			if (current.getPosition().getBottomRightX() == testX
-					|| current.getPosition().getBottomRightY() == testY) {
-				gameStatus = GameStatus.GAME_OVER;
-				return;
+		long currentTime = Calendar.getInstance().getTimeInMillis();
+		if (spawnTimer <= 0) {
+			spawnTimer = ((long) (Math.random() * 1000 + MINIMUM_SPAWN_DELAY))
+					+ currentTime;
+		} else if (currentTime >= spawnTimer) {
+			Box box = new Box();
+			int testY = box.getPosition().getTopLeftY();
+			int testX = box.getPosition().getTopLeftX();
+			for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
+				Box current = iter.next();
+				// TODO check positions right
+				// if (current.getPosition().getBottomRightX() == testX
+				// || current.getPosition().getBottomRightY() == testY) {
+				// gameStatus = GameStatus.GAME_OVER;
+				// return;
+				// }
 			}
+			boxes.add(box);
+			spawnTimer = 0;
 		}
-		boxes.add(box);
 	}
 
 	/**
@@ -366,14 +376,16 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 * Deletes bottom row of boxes if it is full and increases score
 	 */
 	private void deleteBoxes() {
-		if (bottomBoxCount >= Gamefield.MAX_LED_X / player.getSymbol().length) {
+		if (bottomBoxCount >= Gamefield.MAX_LED_X
+				/ player.getSymbol()[0].length) {
 			for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
-				Box current = iter.next();
-				if (current.isAtBottom())
-					boxes.remove(current);
+				if (iter.next().isAtBottom()) {
+					iter.remove();
+				}
 			}
 			score += SCORE_BONUS_FULL_ROW;
 			notifyUpdateListener();
+			bottomBoxCount = 0;
 		}
 	}
 
