@@ -74,7 +74,9 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private int jumpCounter;
 
-	UpdateListener updateListener;
+	private int pushCounter;
+
+	private UpdateListener updateListener;
 
 	/**
 	 * Minimum delay of spawning boxes in milliseconds
@@ -89,9 +91,11 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	public LedAttackEngine() {
 		gameStatus = GameStatus.INGAME;
 		gamefield = new Gamefield();
-		player = new Player();
+		player = new Player((Gamefield.MAX_LED_X / 2),
+				(Gamefield.MAX_LED_Y / 2));
 		boxes = new ArrayList<Box>();
 		jumpCounter = JUMP_HEIGHT;
+		pushCounter = 3;
 	}
 
 	@Override
@@ -137,6 +141,15 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void run() {
+		// TODO seitlich in kiste reinspringen manchmal bug
+		// sounds fertig machen
+		// bilder einfügen
+		// 3 schritt schiebe regel
+		// bei mehrehren kisten aufeinander lässt sich nur die unterste verschieben
+		// sensor verfeinern
+		// wenn stapel zu voll wird game over
+		// manual updaten
+		
 		showIntro();
 
 		while (true) {
@@ -147,32 +160,29 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			// move player up or down
 			movePlayerUpDown();
 
-			// move left or right player and try to push
-			movePlayerLeftRight();
-
 			// move boxes
 			moveBoxesDown();
+
+			// move left or right player and try to push
+			movePlayerLeftRight();
 
 			// eventually spawn box
 			spawnBox();
 
 			// send gamefield
-			gamefield.refresh(boxes, player);
-			BluetoothManager.getInstance().send(gamefield.getGamefield());
+			refreshAndSend();
 
 			if (gameStatus == GameStatus.GAME_OVER) {
 				VibrationManager.getInstance().vibrate();
 				try {
 					sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				VibrationManager.getInstance().vibrate();
 				try {
 					sleep(1000);
 				} catch (InterruptedException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 				VibrationManager.getInstance().vibrate();
@@ -183,6 +193,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			// TODO enhance code
 			if (gameStatus == GameStatus.PAUSE) {
 				BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
+				spawnTimer = 0;
 				while (gameStatus == GameStatus.PAUSE) {
 					try {
 						sleep(1);
@@ -412,15 +423,21 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private void movePlayerUpDown() {
 		int testBotX = player.getPosition().getBottomRightX();
 		int testBotY = player.getPosition().getBottomRightY() + 1;
+		int testTopY = player.getPosition().getTopLeftY() - 1;
 		if (player.isJumping()) {
 			Log.d("engine", "player is jumping");
-			if (!player.isTop()) {
+			if (!player.isTop()
+					&& gamefield.getGamefield()[testTopY][testBotX] == Gamefield.LED_OFF
+					&& gamefield.getGamefield()[testTopY][testBotX - 1] == Gamefield.LED_OFF
+					&& gamefield.getGamefield()[testTopY][testBotX - 2] == Gamefield.LED_OFF) {
 				player.move(Direction.UP);
 				jumpCounter--;
 				if (jumpCounter <= 0) {
 					changeJumping(false);
 					jumpCounter = JUMP_HEIGHT;
 				}
+			} else {
+				changeJumping(false);
 			}
 		} else {
 			if (!player.isAtBottom()) {
@@ -446,5 +463,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	public GameStatus getGameStatus() {
 		return gameStatus;
+	}
+
+	private void refreshAndSend() {
+		gamefield.refresh(boxes, player);
+		BluetoothManager.getInstance().send(gamefield.getGamefield());
 	}
 }

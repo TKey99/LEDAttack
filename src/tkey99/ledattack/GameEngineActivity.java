@@ -3,7 +3,10 @@ package tkey99.ledattack;
 import tkey99.ledattack.utilities.BluetoothManager;
 import tkey99.ledattack.utilities.SoundManager;
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.hardware.Sensor;
 import android.hardware.SensorManager;
@@ -187,6 +190,31 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 
 	@Override
 	public void onBackPressed() {
-		changeToScoreActivity();
+
+		if (statusButton.isChecked()) {
+			statusButton.setChecked(false);
+		}
+
+		Builder alertBuilder = new AlertDialog.Builder(this);
+		alertBuilder.setTitle(R.string.alert_quit_game_title);
+		alertBuilder.setMessage(R.string.alert_quit_game_text);
+		alertBuilder.setCancelable(true);
+		alertBuilder.setPositiveButton(R.string.yes,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						changeToScoreActivity();
+						dialog.cancel();
+					}
+				});
+		alertBuilder.setNegativeButton(R.string.no,
+				new DialogInterface.OnClickListener() {
+					public void onClick(DialogInterface dialog, int id) {
+						// do nothing
+						dialog.cancel();
+					}
+				});
+
+		AlertDialog alert = alertBuilder.create();
+		alert.show();
 	}
 }

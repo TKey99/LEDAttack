@@ -35,13 +35,12 @@ public class Player extends GameObject {
 	/**
 	 * Constructs a new player
 	 */
-	public Player() {
-		position = new Position((Gamefield.MAX_LED_X / 2),
-				(Gamefield.MAX_LED_Y - 1) - (SYMBOL.length - 1),
-				(Gamefield.MAX_LED_X / 2) + (SYMBOL[0].length - 1),
-				Gamefield.MAX_LED_Y - 1);
+	public Player(int topLeftX, int topLeftY) {
+		position = new Position(topLeftX, topLeftY, topLeftX + SYMBOL[0].length
+				- 1, topLeftY + SYMBOL.length - 1);
 
 		isPushing = false;
+		isJumping = false;
 	}
 
 	/**

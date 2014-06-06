@@ -22,5 +22,10 @@
     <string name="manual_main_text">In this game you have to push boxes around and try to bring them into one row.  Once you achieved the goal you gain 100 points. But be careful! If a box hits you at the head while your are not jumping you lose.</string>
     <string name="title_activity_manual">ManualActivity</string>
     <string name="bt_not_connected">Your bluetooth device is not connected to the server, please restart app.</string>
+    <string name="alert_quit_game_text">Do you really want to quit the game?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="alert_quit_game_title">Your game is going to quit...</string>
+    <string name="ok">OK</string>
 
 </resources>

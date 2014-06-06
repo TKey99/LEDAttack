@@ -18,13 +18,18 @@ public class Box extends GameObject {
 			{ X, X, X } };
 
 	/**
-	 * Constructs a new box
+	 * Constructs a new box at a random position
 	 */
 	public Box() {
 		int spawnTopLeftX = (int) (Math.random() * 8);
 		spawnTopLeftX *= 3;
 		position = new Position(spawnTopLeftX, 0, spawnTopLeftX
-				+ SYMBOL[0].length - 1, (SYMBOL.length - 1));
+				+ SYMBOL[0].length - 1, SYMBOL.length - 1);
+	}
+
+	public Box(int topLeftX, int topLeftY) {
+		position = new Position(topLeftX, topLeftY, topLeftX + SYMBOL[0].length
+				- 1, topLeftY + SYMBOL.length - 1);
 	}
 
 	@Override
