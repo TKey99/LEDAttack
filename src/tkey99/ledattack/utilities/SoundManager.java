@@ -23,6 +23,14 @@ public class SoundManager {
 
 	private int destroyBox;
 
+	private int gameOver;
+
+	private int ready;
+
+	private int set;
+
+	private int go;
+
 	/**
 	 * Private constructor
 	 */
@@ -33,6 +41,10 @@ public class SoundManager {
 
 		jumpSound = soundPool.load(context, R.raw.jump, 1);
 		destroyBox = soundPool.load(context, R.raw.destroybox, 1);
+		gameOver = soundPool.load(context, R.raw.gameover, 1);
+		ready = soundPool.load(context, R.raw.ready, 1);
+		set = soundPool.load(context, R.raw.set, 1);
+		go = soundPool.load(context, R.raw.go, 1);
 	}
 
 	/**
@@ -53,11 +65,19 @@ public class SoundManager {
 	}
 
 	public void playGameOver() {
-
+		playSound(gameOver);
 	}
 
-	public void playGameStart() {
+	public void playReady() {
+		playSound(ready);
+	}
 
+	public void playSet() {
+		playSound(set);
+	}
+
+	public void playGo() {
+		playSound(go);
 	}
 
 	public void playRowScore() {

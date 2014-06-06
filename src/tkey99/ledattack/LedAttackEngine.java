@@ -119,18 +119,21 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 */
 	private void showIntro() {
 		Log.d("intro", "intro gesendet");
+		SoundManager.getInstance().playReady();
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_READY);
 		try {
 			sleep(INTRO_WAIT_TIME);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		SoundManager.getInstance().playSet();
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_SET);
 		try {
 			sleep(INTRO_WAIT_TIME);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
+		SoundManager.getInstance().playGo();
 		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_GO);
 		try {
 			sleep(INTRO_WAIT_TIME);
@@ -139,12 +142,30 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		}
 	}
 
+	private void showGameOver() {
+		VibrationManager.getInstance().vibrate();
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		SoundManager.getInstance().playGameOver();
+		VibrationManager.getInstance().vibrate();
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		VibrationManager.getInstance().vibrate();
+		notifyUpdateListener();
+	}
+
 	@Override
 	public void run() {
 		// TODO seitlich in kiste reinspringen manchmal bug
 		// bei mehrehren kisten aufeinander lässt sich nur die unterste
 		// verschieben
-		// sounds fertig machen
+		// sounds optional verbessern
 		// bilder einfügen
 		// 3 schritt schiebe regel
 		// sensor verfeinern
@@ -172,20 +193,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			refreshAndSend();
 
 			if (gameStatus == GameStatus.GAME_OVER) {
-				VibrationManager.getInstance().vibrate();
-				try {
-					sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				VibrationManager.getInstance().vibrate();
-				try {
-					sleep(1000);
-				} catch (InterruptedException e) {
-					e.printStackTrace();
-				}
-				VibrationManager.getInstance().vibrate();
-				notifyUpdateListener();
+				showGameOver();
 				return;
 			}
 
