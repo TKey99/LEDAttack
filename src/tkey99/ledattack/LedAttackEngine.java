@@ -145,11 +145,11 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		// sounds fertig machen
 		// bilder einfügen
 		// 3 schritt schiebe regel
-		// bei mehrehren kisten aufeinander lässt sich nur die unterste verschieben
+		// bei mehrehren kisten aufeinander lässt sich nur die unterste
+		// verschieben
 		// sensor verfeinern
-		// wenn stapel zu voll wird game over
 		// manual updaten
-		
+
 		showIntro();
 
 		while (true) {
@@ -269,12 +269,11 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			int testX = box.getPosition().getTopLeftX();
 			for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 				Box current = iter.next();
-				// TODO check positions right
-				// if (current.getPosition().getBottomRightX() == testX
-				// || current.getPosition().getBottomRightY() == testY) {
-				// gameStatus = GameStatus.GAME_OVER;
-				// return;
-				// }
+				if (current.getPosition().getTopLeftX() == testX
+						&& current.getPosition().getTopLeftY() == testY) {
+					gameStatus = GameStatus.GAME_OVER;
+					return;
+				}
 			}
 			boxes.add(box);
 			spawnTimer = 0;
