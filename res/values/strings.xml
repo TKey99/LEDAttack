@@ -27,5 +27,7 @@
     <string name="no">No</string>
     <string name="alert_quit_game_title">Your game is going to quit...</string>
     <string name="ok">OK</string>
+    <string name="manual_move_title">Move</string>
+    <string name="manual_move_text">Tilt your smartphone to move</string>
 
 </resources>

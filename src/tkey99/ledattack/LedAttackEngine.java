@@ -66,7 +66,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private int bottomBoxCount = 0;
 
-	private final int SCORE_BONUS_FULL_ROW = 50;
+	private final int SCORE_BONUS_FULL_ROW = 100;
 
 	private final int SCORE_BONUS_BOX_DESTROYED = 15;
 
@@ -142,13 +142,12 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	@Override
 	public void run() {
 		// TODO seitlich in kiste reinspringen manchmal bug
+		// bei mehrehren kisten aufeinander lässt sich nur die unterste
+		// verschieben
 		// sounds fertig machen
 		// bilder einfügen
 		// 3 schritt schiebe regel
-		// bei mehrehren kisten aufeinander lässt sich nur die unterste
-		// verschieben
 		// sensor verfeinern
-		// manual updaten
 
 		showIntro();
 
