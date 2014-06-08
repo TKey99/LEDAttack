@@ -166,7 +166,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void run() {
-		// TODO seitlich in kiste reinspringen manchmal bug
 		// sensor verfeinern
 		// schiebe sound einfügen
 		// startbild einfügen
