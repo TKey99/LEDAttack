@@ -163,8 +163,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	@Override
 	public void run() {
 		// TODO seitlich in kiste reinspringen manchmal bug
-		// bei mehrehren kisten aufeinander lässt sich nur die unterste
-		// verschieben
 		// sounds optional verbessern
 		// bilder einfügen
 		// 3 schritt schiebe regel
@@ -172,6 +170,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 		showIntro();
 
+		boxes.add(new Box(3, 6));
+		boxes.add(new Box(3, 0));
+		boxes.add(new Box(18, 6));
+		boxes.add(new Box(18, 0));
 		while (true) {
 
 			// eventually delete bottom boxes and increase score
@@ -187,7 +189,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			movePlayerLeftRight();
 
 			// eventually spawn box
-			spawnBox();
+			// spawnBox();
 
 			// send gamefield
 			refreshAndSend();
@@ -298,15 +300,16 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		int testYBot = player.getPosition().getBottomRightY();
 		if (sensorValue >= SENSOR_VALUE_TO_MOVE) {
 			if (!player.isRight()) {
-				if (gamefield.getGamefield()[testYBot][testXBot] == Gamefield.LED_OFF
+				if (gamefield.getGamefield()[testYTop][testXBot] == Gamefield.LED_OFF
 						&& gamefield.getGamefield()[testYTop
-								+ player.getSymbol().length / 2][testXBot] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testYTop][testXBot] == Gamefield.LED_OFF) {
-					player.move(Direction.RIGHT);
-					Log.d("player", "move right");
-				} else {
-					if (player.isPushing()) {
-						tryToPushRight();
+								+ player.getSymbol().length / 2 - 1][testXBot] == Gamefield.LED_OFF) {
+					if (gamefield.getGamefield()[testYBot][testXBot] == Gamefield.LED_OFF) {
+						player.move(Direction.RIGHT);
+						Log.d("player", "move right");
+					} else {
+						if (player.isPushing()) {
+							tryToPushRight();
+						}
 					}
 				}
 			}
@@ -314,13 +317,14 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			if (!player.isLeft()) {
 				if (gamefield.getGamefield()[testYTop][testXTop] == Gamefield.LED_OFF
 						&& gamefield.getGamefield()[testYTop
-								+ player.getSymbol().length / 2][testXTop] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testYBot][testXTop] == Gamefield.LED_OFF) {
-					player.move(Direction.LEFT);
-					Log.d("player", "move left");
-				} else {
-					if (player.isPushing()) {
-						tryToPushLeft();
+								+ player.getSymbol().length / 2 - 1][testXTop] == Gamefield.LED_OFF) {
+					if (gamefield.getGamefield()[testYBot][testXTop] == Gamefield.LED_OFF) {
+						player.move(Direction.LEFT);
+						Log.d("player", "move left");
+					} else {
+						if (player.isPushing()) {
+							tryToPushLeft();
+						}
 					}
 				}
 			}
@@ -331,11 +335,14 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 * Tries to push a box to the right
 	 */
 	private void tryToPushRight() {
+		Log.d("engine", "try to push left");
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
 			if (current.getPosition().getBottomRightX()
 					- current.getSymbol()[0].length == player.getPosition()
-					.getBottomRightX()) {
+					.getBottomRightX()
+					&& current.getPosition().getBottomRightY() == player
+							.getPosition().getBottomRightY()) {
 				if (!current.isRight()
 						&& gamefield.getGamefield()[current.getPosition()
 								.getBottomRightY()][current.getPosition()
@@ -352,10 +359,13 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 * Tries to push a box to the left
 	 */
 	private void tryToPushLeft() {
+		Log.d("engine", "try to push left");
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
 			if (current.getPosition().getBottomRightX() == player.getPosition()
-					.getBottomRightX() - player.getSymbol()[0].length) {
+					.getBottomRightX() - player.getSymbol()[0].length
+					&& current.getPosition().getBottomRightY() == player
+							.getPosition().getBottomRightY()) {
 				if (!current.isLeft()
 						&& gamefield.getGamefield()[current.getPosition()
 								.getBottomRightY()][current.getPosition()

@@ -202,7 +202,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		alertBuilder.setPositiveButton(R.string.yes,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						changeToScoreActivity();
+						engine.setGameStatus(GameStatus.GAME_OVER);
 						dialog.cancel();
 					}
 				});
