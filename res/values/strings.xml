@@ -29,5 +29,6 @@
     <string name="ok">OK</string>
     <string name="manual_move_title">Move</string>
     <string name="manual_move_text">Tilt your smartphone to move</string>
+    <string name="author">by Thomas Kadow</string>
 
 </resources>
