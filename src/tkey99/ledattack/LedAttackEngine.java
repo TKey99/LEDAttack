@@ -12,6 +12,7 @@ import tkey99.ledattack.utilities.VibrationManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.util.Log;
 
 /**
@@ -21,6 +22,32 @@ import android.util.Log;
  * 
  */
 public class LedAttackEngine extends Thread implements SensorEventListener {
+
+	/**
+	 * Value of the sensor to move the player
+	 */
+	private final float SENSOR_VALUE_TO_MOVE = 1.0f;
+
+	/**
+	 * Wait time for the intro
+	 */
+	private final long INTRO_WAIT_TIME = 1000;
+
+	/**
+	 * Wait time for the game calculation
+	 */
+	private final long LOOP_WAIT_TIME = 120;
+
+	private final int SCORE_BONUS_FULL_ROW = 100;
+
+	private final int SCORE_BONUS_BOX_DESTROYED = 15;
+
+	private final int JUMP_HEIGHT = 3;
+
+	/**
+	 * Minimum delay of spawning boxes in milliseconds
+	 */
+	private final int MINIMUM_SPAWN_DELAY = 2000;
 
 	/**
 	 * Gamefield of the game
@@ -43,21 +70,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private float sensorValue;
 
 	/**
-	 * Value of the sensor to move the player
-	 */
-	private final float SENSOR_VALUE_TO_MOVE = 1.0f;
-
-	/**
-	 * Wait time for the intro
-	 */
-	private final long INTRO_WAIT_TIME = 1000;
-
-	/**
-	 * Wait time for the game calculation
-	 */
-	private final long LOOP_WAIT_TIME = 120;
-
-	/**
 	 * Provides the status of the game
 	 */
 	private GameStatus gameStatus;
@@ -66,12 +78,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private int bottomBoxCount = 0;
 
-	private final int SCORE_BONUS_FULL_ROW = 100;
-
-	private final int SCORE_BONUS_BOX_DESTROYED = 15;
-
-	private final int JUMP_HEIGHT = 3;
-
 	private int jumpCounter;
 
 	private int pushCounter;
@@ -79,10 +85,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private UpdateListener updateListener;
 
 	/**
-	 * Minimum delay of spawning boxes in milliseconds
+	 * Time until next box is spawned
 	 */
-	private final int MINIMUM_SPAWN_DELAY = 2000;
-
 	private long spawnTimer = 0;
 
 	/**
@@ -163,17 +167,13 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	@Override
 	public void run() {
 		// TODO seitlich in kiste reinspringen manchmal bug
+		// sensor verfeinern
 		// sounds optional verbessern
 		// bilder einfügen
 		// 3 schritt schiebe regel
-		// sensor verfeinern
 
 		showIntro();
 
-		boxes.add(new Box(3, 6));
-		boxes.add(new Box(3, 0));
-		boxes.add(new Box(18, 6));
-		boxes.add(new Box(18, 0));
 		while (true) {
 
 			// eventually delete bottom boxes and increase score
@@ -182,34 +182,34 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			// move player up or down
 			movePlayerUpDown();
 
-			// move boxes
-			moveBoxesDown();
-
 			// move left or right player and try to push
 			movePlayerLeftRight();
 
+			// move boxes
+			moveBoxesDown();
+
 			// eventually spawn box
-			// spawnBox();
+			spawnBox();
 
 			// send gamefield
 			refreshAndSend();
 
-			if (gameStatus == GameStatus.GAME_OVER) {
-				showGameOver();
-				return;
-			}
-
-			// TODO enhance code
 			if (gameStatus == GameStatus.PAUSE) {
 				BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
 				spawnTimer = 0;
-				while (gameStatus == GameStatus.PAUSE) {
+				synchronized (this) {
 					try {
-						sleep(1);
+						wait();
 					} catch (InterruptedException e) {
 						e.printStackTrace();
 					}
 				}
+				refreshAndSend();
+			}
+
+			if (gameStatus == GameStatus.GAME_OVER) {
+				showGameOver();
+				return;
 			}
 
 			// loop wait

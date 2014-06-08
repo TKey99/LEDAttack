@@ -126,6 +126,9 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 				sensorManager.registerListener(engine,
 						sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
 						SensorManager.SENSOR_DELAY_GAME);
+				synchronized (engine) {
+					engine.notify();
+				}
 			} else {
 				engine.setGameStatus(GameStatus.PAUSE);
 				sensorManager.unregisterListener(engine,
@@ -202,6 +205,9 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		alertBuilder.setPositiveButton(R.string.yes,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
+						if(engine.getGameStatus() == GameStatus.PAUSE) {
+							statusButton.setChecked(true);
+						}
 						engine.setGameStatus(GameStatus.GAME_OVER);
 						dialog.cancel();
 					}

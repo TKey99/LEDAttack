@@ -101,4 +101,12 @@ public class SoundManager {
 		float volume = audioManager.getStreamVolume(AudioManager.STREAM_MUSIC);
 		soundPool.play(soundID, volume, volume, 1, 0, 1f);
 	}
+
+	public void mute() {
+		audioManager.setStreamMute(AudioManager.STREAM_MUSIC, true);
+	}
+
+	public void unmute() {
+		audioManager.setStreamMute(AudioManager.STREAM_MUSIC, false);
+	}
 }
