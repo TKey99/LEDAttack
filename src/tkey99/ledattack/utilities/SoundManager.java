@@ -32,6 +32,8 @@ public class SoundManager {
 	private int go;
 
 	private int scored;
+	
+	private int push;
 
 	/**
 	 * Private constructor
@@ -48,6 +50,7 @@ public class SoundManager {
 		set = soundPool.load(context, R.raw.set, 1);
 		go = soundPool.load(context, R.raw.go, 1);
 		scored = soundPool.load(context, R.raw.scored, 1);
+		push = soundPool.load(context, R.raw.push, 1);
 	}
 
 	/**
@@ -92,7 +95,7 @@ public class SoundManager {
 	}
 
 	public void playPush() {
-
+		playSound(push);
 	}
 
 	public void playJump() {

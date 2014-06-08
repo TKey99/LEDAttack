@@ -44,6 +44,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private final int JUMP_HEIGHT = 3;
 
+	private final int PUSH_LENGTH = 3;
+
 	/**
 	 * Minimum delay of spawning boxes in milliseconds
 	 */
@@ -80,7 +82,9 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	private int jumpCounter;
 
-	private int pushCounter;
+	private int pushCounterLeft = 0;
+
+	private int pushCounterRight = 0;
 
 	private UpdateListener updateListener;
 
@@ -99,7 +103,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				(Gamefield.MAX_LED_Y / 2));
 		boxes = new ArrayList<Box>();
 		jumpCounter = JUMP_HEIGHT;
-		pushCounter = 3;
 	}
 
 	@Override
@@ -167,12 +170,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	@Override
 	public void run() {
 		// sensor verfeinern
-		// schiebe sound einfügen
-		// startbild einfügen
-		// 3 schritt schiebe regel
 
 		showIntro();
 
+		boxes.add(new Box(9, 0));
 		while (true) {
 
 			// eventually delete bottom boxes and increase score
@@ -180,10 +181,15 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 			// move player up or down
 			movePlayerUpDown();
-			
 
 			// move left or right player and try to push
-			movePlayerLeftRight();
+			if (pushCounterLeft > 0) {
+				tryToPushLeft();
+			} else if (pushCounterRight > 0) {
+				tryToPushRight();
+			} else {
+				movePlayerLeftRight();
+			}
 			gamefield.refresh(boxes, player);
 
 			// move boxes
@@ -191,7 +197,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			gamefield.refresh(boxes, player);
 
 			// eventually spawn box
-			spawnBox();
+			// spawnBox();
 
 			// send gamefield
 			refreshAndSend();
@@ -312,6 +318,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 						Log.d("player", "move right");
 					} else {
 						if (player.isPushing()) {
+							pushCounterRight = PUSH_LENGTH;
 							tryToPushRight();
 						}
 					}
@@ -328,6 +335,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 						Log.d("player", "move left");
 					} else {
 						if (player.isPushing()) {
+							pushCounterLeft = PUSH_LENGTH;
 							tryToPushLeft();
 						}
 					}
@@ -341,7 +349,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 */
 	private void tryToPushRight() {
 		Log.d("engine", "try to push left");
-		boolean canMove = true;
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
 			if (current.getPosition().getBottomRightX()
@@ -351,13 +358,20 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 							.getPosition().getBottomRightY()) {
 				if (!current.isRight()
 						&& gamefield.getGamefield()[current.getPosition()
-								.getBottomRightY()][current.getPosition()
+								.getTopLeftY()][current.getPosition()
 								.getBottomRightX() + 1] == Gamefield.LED_OFF) {
-					current.move(Direction.RIGHT);
-					player.move(Direction.RIGHT);
-					gamefield.refresh(boxes, player);
+					if (pushCounterRight > 0) {
+						pushCounterRight--;
+						SoundManager.getInstance().playPush();
+						current.move(Direction.RIGHT);
+						player.move(Direction.RIGHT);
+						gamefield.refresh(boxes, player);
+					}
+					return;
+				} else {
+					pushCounterRight = 0;
+					return;
 				}
-				return;
 			}
 		}
 	}
@@ -375,14 +389,21 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 							.getPosition().getBottomRightY()) {
 				if (!current.isLeft()
 						&& gamefield.getGamefield()[current.getPosition()
-								.getBottomRightY()][current.getPosition()
+								.getTopLeftY()][current.getPosition()
 								.getBottomRightX()
 								- current.getSymbol()[0].length] == Gamefield.LED_OFF) {
-					current.move(Direction.LEFT);
-					player.move(Direction.LEFT);
-					gamefield.refresh(boxes, player);
+					if (pushCounterLeft > 0) {
+						pushCounterLeft--;
+						SoundManager.getInstance().playPush();
+						current.move(Direction.LEFT);
+						player.move(Direction.LEFT);
+						gamefield.refresh(boxes, player);
+					}
+					return;
+				} else {
+					pushCounterLeft = 0;
+					return;
 				}
-				return;
 			}
 		}
 	}
