@@ -180,12 +180,15 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 			// move player up or down
 			movePlayerUpDown();
+			
 
 			// move left or right player and try to push
 			movePlayerLeftRight();
+			gamefield.refresh(boxes, player);
 
 			// move boxes
 			moveBoxesDown();
+			gamefield.refresh(boxes, player);
 
 			// eventually spawn box
 			spawnBox();
@@ -285,6 +288,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			}
 			boxes.add(box);
 			spawnTimer = 0;
+			gamefield.refresh(boxes, player);
 		}
 	}
 
@@ -304,6 +308,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 								+ player.getSymbol().length / 2 - 1][testXBot] == Gamefield.LED_OFF) {
 					if (gamefield.getGamefield()[testYBot][testXBot] == Gamefield.LED_OFF) {
 						player.move(Direction.RIGHT);
+						gamefield.refresh(boxes, player);
 						Log.d("player", "move right");
 					} else {
 						if (player.isPushing()) {
@@ -319,6 +324,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 								+ player.getSymbol().length / 2 - 1][testXTop] == Gamefield.LED_OFF) {
 					if (gamefield.getGamefield()[testYBot][testXTop] == Gamefield.LED_OFF) {
 						player.move(Direction.LEFT);
+						gamefield.refresh(boxes, player);
 						Log.d("player", "move left");
 					} else {
 						if (player.isPushing()) {
@@ -335,6 +341,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 */
 	private void tryToPushRight() {
 		Log.d("engine", "try to push left");
+		boolean canMove = true;
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
 			if (current.getPosition().getBottomRightX()
@@ -348,6 +355,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 								.getBottomRightX() + 1] == Gamefield.LED_OFF) {
 					current.move(Direction.RIGHT);
 					player.move(Direction.RIGHT);
+					gamefield.refresh(boxes, player);
 				}
 				return;
 			}
@@ -372,6 +380,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 								- current.getSymbol()[0].length] == Gamefield.LED_OFF) {
 					current.move(Direction.LEFT);
 					player.move(Direction.LEFT);
+					gamefield.refresh(boxes, player);
 				}
 				return;
 			}
@@ -414,6 +423,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 							return;
 						}
 					}
+					gamefield.refresh(boxes, player);
 				}
 			}
 		}
@@ -430,10 +440,12 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					iter.remove();
 				}
 			}
+			SoundManager.getInstance().playRowScore();
 			VibrationManager.getInstance().vibrate();
 			score += SCORE_BONUS_FULL_ROW;
 			notifyUpdateListener();
 			bottomBoxCount = 0;
+			gamefield.refresh(boxes, player);
 		}
 	}
 
@@ -451,6 +463,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					&& gamefield.getGamefield()[testTopY][testBotX - 1] == Gamefield.LED_OFF
 					&& gamefield.getGamefield()[testTopY][testBotX - 2] == Gamefield.LED_OFF) {
 				player.move(Direction.UP);
+				gamefield.refresh(boxes, player);
 				jumpCounter--;
 				if (jumpCounter <= 0) {
 					changeJumping(false);
@@ -469,6 +482,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 						&& gamefield.getGamefield()[testBotY][testBotX - 1] == Gamefield.LED_OFF
 						&& gamefield.getGamefield()[testBotY][testBotX - 2] == Gamefield.LED_OFF) {
 					player.move(Direction.DOWN);
+					gamefield.refresh(boxes, player);
 				}
 			}
 		}
