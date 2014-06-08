@@ -137,6 +137,7 @@ public class BluetoothManager {
 				Log.d("bluetooth stream", e.getMessage());
 				e.printStackTrace();
 			}
+			Log.d("bluetooth", "fertig");
 			return true;
 		}
 		return false;

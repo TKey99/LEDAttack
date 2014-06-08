@@ -36,4 +36,20 @@ public class Box extends GameObject {
 	public byte[][] getSymbol() {
 		return SYMBOL;
 	}
+
+	public boolean isBox(Position boxPosition) {
+		int testY = boxPosition.getBottomRightY() + 1;
+		int testX = boxPosition.getBottomRightX();
+		if (testY == position.getTopLeftY()) {
+			if (testX == position.getTopLeftX()
+					|| testX == position.getTopLeftX() + 1
+					|| testX == position.getBottomRightX()
+					|| testX - 1 == position.getBottomRightX()
+					|| testX - 2 == position.getBottomRightX()) {
+				return true;
+			}
+		}
+		return false;
+
+	}
 }

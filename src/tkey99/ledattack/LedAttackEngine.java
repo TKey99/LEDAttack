@@ -168,8 +168,8 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	public void run() {
 		// TODO seitlich in kiste reinspringen manchmal bug
 		// sensor verfeinern
-		// sounds optional verbessern
-		// bilder einfügen
+		// schiebe sound einfügen
+		// startbild einfügen
 		// 3 schritt schiebe regel
 
 		showIntro();
@@ -386,14 +386,17 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	private void moveBoxesDown() {
 		for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
 			Box current = iter.next();
-			int testX = current.getPosition().getBottomRightX();
-			int testY = current.getPosition().getBottomRightY() + 1;
+			boolean canMove = true;
 
 			if (!current.isAtBottom()) {
-				if (gamefield.getGamefield()[testY][testX] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testY][testX - 1] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testY][testX - 2] == Gamefield.LED_OFF) {
+				for (Iterator<Box> iter2 = boxes.iterator(); iter2.hasNext();) {
+					Box boxToTest = iter2.next();
+					if (boxToTest.isBox(current.getPosition())) {
+						canMove = false;
+					}
+				}
 
+				if (canMove) {
 					current.move(Direction.DOWN);
 
 					if (current.isAtBottom()) {
@@ -406,8 +409,10 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 							boxes.remove(current);
 							score += SCORE_BONUS_BOX_DESTROYED;
 							notifyUpdateListener();
+							return;
 						} else {
 							setGameStatus(GameStatus.GAME_OVER);
+							return;
 						}
 					}
 				}
@@ -453,7 +458,11 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 					jumpCounter = JUMP_HEIGHT;
 				}
 			} else {
-				changeJumping(false);
+				jumpCounter--;
+				if (jumpCounter <= 0) {
+					changeJumping(false);
+					jumpCounter = JUMP_HEIGHT;
+				}
 			}
 		} else {
 			if (!player.isAtBottom()) {

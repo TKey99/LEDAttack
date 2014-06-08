@@ -51,7 +51,7 @@ public class Player extends GameObject {
 	 * @return true if hit, false otherwise
 	 */
 	public boolean isHead(Position boxPosition) {
-		int testY = boxPosition.getBottomRightY() + 1;
+		int testY = boxPosition.getBottomRightY();
 		int testX = boxPosition.getBottomRightX();
 		if (testY == position.getTopLeftY()) {
 			if (testX == position.getTopLeftX()

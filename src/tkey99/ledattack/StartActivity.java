@@ -8,9 +8,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
+import android.app.ProgressDialog;
 import android.content.Intent;
 
 /**
@@ -43,8 +45,6 @@ public class StartActivity extends Activity {
 
 		setContentView(R.layout.start);
 
-		BluetoothManager.getInstance().enableBT(this);
-
 		title = (TextView) findViewById(R.id.title);
 		start = (Button) findViewById(R.id.start_button);
 		manual = (Button) findViewById(R.id.manual_button);
@@ -59,6 +59,10 @@ public class StartActivity extends Activity {
 
 		VibrationManager.initialize(this);
 		SoundManager.initialize(this);
+		
+		if(!BluetoothManager.getInstance().isEnabled()) {
+			BluetoothManager.getInstance().enableBT(this);
+		}
 	}
 
 	@Override
