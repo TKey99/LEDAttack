@@ -1,13 +1,13 @@
-package tkey99.ledattack.utilities;
+package de.tkey99.ledattack.utilities;
 
 import java.io.IOException;
 import java.io.OutputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
-import tkey99.ledattack.Gamefield;
-import tkey99.ledattack.R;
+
+import de.tkey99.ledattack.R;
+import de.tkey99.ledattack.engine.gamefield.Gamefield;
 import android.app.Activity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;

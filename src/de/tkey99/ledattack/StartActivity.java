@@ -1,18 +1,17 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack;
 
-import tkey99.ledattack.utilities.BluetoothManager;
-import tkey99.ledattack.utilities.SoundManager;
-import tkey99.ledattack.utilities.VibrationManager;
+import de.tkey99.ledattack.R;
+import de.tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.utilities.SoundManager;
+import de.tkey99.ledattack.utilities.VibrationManager;
+import de.tkey99.ledattack.engine.gamefield.StaticGameFields;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.ProgressBar;
-import android.widget.TextView;
 import android.widget.Toast;
 import android.app.Activity;
-import android.app.ProgressDialog;
 import android.content.Intent;
 
 /**
@@ -22,11 +21,6 @@ import android.content.Intent;
  * 
  */
 public class StartActivity extends Activity {
-
-	/**
-	 * Title of the game.
-	 */
-	private TextView title;
 
 	/**
 	 * Button to start the game.
@@ -45,7 +39,6 @@ public class StartActivity extends Activity {
 
 		setContentView(R.layout.start);
 
-		title = (TextView) findViewById(R.id.title);
 		start = (Button) findViewById(R.id.start_button);
 		manual = (Button) findViewById(R.id.manual_button);
 
@@ -59,8 +52,8 @@ public class StartActivity extends Activity {
 
 		VibrationManager.initialize(this);
 		SoundManager.initialize(this);
-		
-		if(!BluetoothManager.getInstance().isEnabled()) {
+
+		if (!BluetoothManager.getInstance().isEnabled()) {
 			BluetoothManager.getInstance().enableBT(this);
 		}
 	}

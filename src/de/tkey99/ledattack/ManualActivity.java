@@ -1,6 +1,8 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack;
 
-import tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.R;
+import de.tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.engine.gamefield.StaticGameFields;
 import android.app.Activity;
 import android.os.Bundle;
 import android.util.Log;

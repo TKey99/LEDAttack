@@ -1,14 +1,18 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack.engine;
 
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Iterator;
 
-import tkey99.ledattack.gameobjects.Box;
-import tkey99.ledattack.gameobjects.Player;
-import tkey99.ledattack.utilities.BluetoothManager;
-import tkey99.ledattack.utilities.SoundManager;
-import tkey99.ledattack.utilities.VibrationManager;
+import de.tkey99.ledattack.UpdateListener;
+import de.tkey99.ledattack.engine.gamefield.Gamefield;
+import de.tkey99.ledattack.engine.gamefield.StaticGameFields;
+import de.tkey99.ledattack.engine.gameobjects.Box;
+import de.tkey99.ledattack.engine.gameobjects.Direction;
+import de.tkey99.ledattack.engine.gameobjects.Player;
+import de.tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.utilities.SoundManager;
+import de.tkey99.ledattack.utilities.VibrationManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
@@ -42,12 +46,24 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 */
 	private final long LOOP_WAIT_TIME = 120;
 
+	/**
+	 * Score points if row is full
+	 */
 	private final int SCORE_BONUS_FULL_ROW = 100;
 
+	/**
+	 * Score points if box is destroyed
+	 */
 	private final int SCORE_BONUS_BOX_DESTROYED = 15;
 
+	/**
+	 * Height the player can jump
+	 */
 	private final int JUMP_HEIGHT = 3;
 
+	/**
+	 * Length the player pushes a box
+	 */
 	private final int PUSH_LENGTH = 3;
 
 	/**
@@ -80,16 +96,34 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	 */
 	private GameStatus gameStatus;
 
-	private int score = 0;
+	/**
+	 * Actual score points
+	 */
+	private int score;
 
-	private int bottomBoxCount = 0;
+	/**
+	 * Amount of boxes on the bottom of the gamefield
+	 */
+	private int bottomBoxCount;
 
+	/**
+	 * Amount of steps left the player is jumping
+	 */
 	private int jumpCounter;
 
-	private int pushCounterLeft = 0;
+	/**
+	 * Amount of steps left the player is pushing to the left
+	 */
+	private int pushCounterLeft;
 
-	private int pushCounterRight = 0;
+	/**
+	 * Amount of steps left the player is pushing to the right
+	 */
+	private int pushCounterRight;
 
+	/**
+	 * Updatelistener to update the view
+	 */
 	private UpdateListener updateListener;
 
 	/**
@@ -107,127 +141,39 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				(Gamefield.MAX_LED_Y / 2));
 		boxes = new ArrayList<Box>();
 		jumpCounter = JUMP_HEIGHT;
-	}
-
-	@Override
-	public void onAccuracyChanged(Sensor sensor, int accuracy) {
-	}
-
-	@Override
-	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == SENSOR) {
-			float x = event.values[0];
-			float y = event.values[1]; // tilt
-			float z = event.values[2];
-
-			sensorValue = y;
-			Log.d("sensor", "y = " + y);
-		}
+		score = 0;
+		bottomBoxCount = 0;
+		pushCounterLeft = 0;
+		pushCounterRight = 0;
 	}
 
 	/**
-	 * Sends the intro to the led matrix
+	 * Sets the update listener
+	 * 
+	 * @param listener
+	 *            listener to set
 	 */
-	private void showIntro() {
-		Log.d("intro", "intro gesendet");
-		SoundManager.getInstance().playReady();
-		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_READY);
-		try {
-			sleep(INTRO_WAIT_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		SoundManager.getInstance().playSet();
-		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_SET);
-		try {
-			sleep(INTRO_WAIT_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		SoundManager.getInstance().playGo();
-		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_GO);
-		try {
-			sleep(INTRO_WAIT_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
+	public void setUpdateListener(UpdateListener listener) {
+		updateListener = listener;
 	}
 
-	private void showGameOver() {
-		VibrationManager.getInstance().vibrate();
-		try {
-			sleep(INTRO_WAIT_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		SoundManager.getInstance().playGameOver();
-		VibrationManager.getInstance().vibrate();
-		try {
-			sleep(INTRO_WAIT_TIME);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
-		VibrationManager.getInstance().vibrate();
-		notifyUpdateListener();
+	/**
+	 * Sets the game status
+	 * 
+	 * @param status
+	 *            status to set
+	 */
+	public void setGameStatus(GameStatus status) {
+		gameStatus = status;
 	}
 
-	@Override
-	public void run() {
-		// sensor verfeinern
-
-		showIntro();
-
-		while (true) {
-
-			// eventually delete bottom boxes and increase score
-			deleteBoxes();
-
-			// move player up or down
-			movePlayerUpDown();
-
-			// move left or right player and try to push
-			if (pushCounterLeft > 0) {
-				tryToPushLeft();
-			} else if (pushCounterRight > 0) {
-				tryToPushRight();
-			} else {
-				movePlayerLeftRight();
-			}
-
-			// move boxes
-			moveBoxesDown();
-
-			// eventually spawn box
-			spawnBox();
-
-			// send gamefield
-			refreshAndSend();
-
-			if (gameStatus == GameStatus.PAUSE) {
-				BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
-				spawnTimer = 0;
-				synchronized (this) {
-					try {
-						wait();
-					} catch (InterruptedException e) {
-						e.printStackTrace();
-					}
-				}
-				refreshAndSend();
-			}
-
-			if (gameStatus == GameStatus.GAME_OVER) {
-				showGameOver();
-				return;
-			}
-
-			// loop wait
-			try {
-				sleep(LOOP_WAIT_TIME);
-			} catch (InterruptedException e1) {
-				e1.printStackTrace();
-			}
-		}
+	/**
+	 * Returns the actual gamestatus
+	 * 
+	 * @return actual gamestatus
+	 */
+	public GameStatus getGameStatus() {
+		return gameStatus;
 	}
 
 	/**
@@ -262,39 +208,146 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		}
 	}
 
-	/**
-	 * Sets the game status
-	 * 
-	 * @param status
-	 *            status to set
-	 */
-	public void setGameStatus(GameStatus status) {
-		gameStatus = status;
+	@Override
+	public void onAccuracyChanged(Sensor sensor, int accuracy) {
+	}
+
+	@Override
+	public void onSensorChanged(SensorEvent event) {
+		if (event.sensor.getType() == SENSOR) {
+			float x = event.values[0];
+			float y = event.values[1]; // tilt
+			float z = event.values[2];
+
+			sensorValue = y;
+			// Log.d("sensor", "y = " + y);
+		}
+	}
+
+	@Override
+	public void run() {
+		// kisten in der luft verschieben buggt
+	
+		showIntro();
+	
+		while (true) {
+	
+			// eventually delete bottom boxes and increase score
+			deleteBoxes();
+	
+			// move left or right player and try to push
+			if (pushCounterLeft > 0) {
+				tryToPushLeft();
+			} else if (pushCounterRight > 0) {
+				tryToPushRight();
+			} else {
+				movePlayerLeftRight();
+	
+				// move player up or down
+				movePlayerUpDown();
+			}
+	
+			// move boxes
+			moveBoxesDown();
+	
+			// eventually spawn box
+			spawnBox();
+	
+			// send gamefield
+			refreshAndSend();
+	
+			if (gameStatus == GameStatus.PAUSE) {
+				BluetoothManager.getInstance().send(StaticGameFields.PAUSE);
+				spawnTimer = 0;
+				synchronized (this) {
+					try {
+						wait();
+					} catch (InterruptedException e) {
+						e.printStackTrace();
+					}
+				}
+				refreshAndSend();
+			}
+	
+			if (gameStatus == GameStatus.GAME_OVER) {
+				showGameOver();
+				return;
+			}
+	
+			// loop wait
+			try {
+				sleep(LOOP_WAIT_TIME);
+			} catch (InterruptedException e1) {
+				e1.printStackTrace();
+			}
+		}
 	}
 
 	/**
-	 * Spawns a new box at a random time, if box spawns in a box because an old
-	 * box is lying there, game over
+	 * Sends the intro to the led matrix
 	 */
-	private void spawnBox() {
-		long currentTime = Calendar.getInstance().getTimeInMillis();
-		if (spawnTimer <= 0) {
-			spawnTimer = ((long) (Math.random() * 1000 + MINIMUM_SPAWN_DELAY))
-					+ currentTime;
-		} else if (currentTime >= spawnTimer) {
-			Box box = new Box();
-			int testY = box.getPosition().getTopLeftY();
-			int testX = box.getPosition().getTopLeftX();
+	private void showIntro() {
+		Log.d("intro", "intro gesendet");
+		SoundManager.getInstance().playReady();
+		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_READY);
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		SoundManager.getInstance().playSet();
+		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_SET);
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		SoundManager.getInstance().playGo();
+		BluetoothManager.getInstance().send(StaticGameFields.COUNTDOWN_GO);
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+	}
+
+	/**
+	 * Sends game over to the led matrix and starts score activity
+	 */
+	private void showGameOver() {
+		VibrationManager.getInstance().vibrate();
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		SoundManager.getInstance().playGameOver();
+		VibrationManager.getInstance().vibrate();
+		try {
+			sleep(INTRO_WAIT_TIME);
+		} catch (InterruptedException e) {
+			e.printStackTrace();
+		}
+		VibrationManager.getInstance().vibrate();
+		notifyUpdateListener();
+	}
+
+	/**
+	 * Deletes bottom row of boxes if it is full and increases score
+	 */
+	private void deleteBoxes() {
+		if (bottomBoxCount >= Gamefield.MAX_LED_X
+				/ player.getSymbol()[0].length) {
 			for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
-				Box current = iter.next();
-				if (current.getPosition().getTopLeftX() == testX
-						&& current.getPosition().getTopLeftY() == testY) {
-					gameStatus = GameStatus.GAME_OVER;
-					return;
+				if (iter.next().isAtBottom()) {
+					iter.remove();
 				}
 			}
-			boxes.add(box);
-			spawnTimer = 0;
+			SoundManager.getInstance().playRowScore();
+			VibrationManager.getInstance().vibrate();
+			score += SCORE_BONUS_FULL_ROW;
+			notifyUpdateListener();
+			bottomBoxCount = 0;
 			gamefield.refresh(boxes, player);
 		}
 	}
@@ -412,6 +465,45 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	}
 
 	/**
+	 * Moves the player up or down
+	 */
+	private void movePlayerUpDown() {
+		int testBotX = player.getPosition().getBottomRightX();
+		int testBotY = player.getPosition().getBottomRightY() + 1;
+		int testTopY = player.getPosition().getTopLeftY() - 1;
+		if (player.isJumping() && pushCounterLeft == 0 && pushCounterRight == 0) {
+			Log.d("engine", "player is jumping");
+			if (!player.isTop()
+					&& gamefield.getGamefield()[testTopY][testBotX] == Gamefield.LED_OFF
+					&& gamefield.getGamefield()[testTopY][testBotX - 1] == Gamefield.LED_OFF
+					&& gamefield.getGamefield()[testTopY][testBotX - 2] == Gamefield.LED_OFF) {
+				player.move(Direction.UP);
+				gamefield.refresh(boxes, player);
+				jumpCounter--;
+				if (jumpCounter <= 0) {
+					changeJumping(false);
+					jumpCounter = JUMP_HEIGHT;
+				}
+			} else {
+				jumpCounter--;
+				if (jumpCounter <= 0) {
+					changeJumping(false);
+					jumpCounter = JUMP_HEIGHT;
+				}
+			}
+		} else {
+			if (!player.isAtBottom()) {
+				if (gamefield.getGamefield()[testBotY][testBotX] == Gamefield.LED_OFF
+						&& gamefield.getGamefield()[testBotY][testBotX - 1] == Gamefield.LED_OFF
+						&& gamefield.getGamefield()[testBotY][testBotX - 2] == Gamefield.LED_OFF) {
+					player.move(Direction.DOWN);
+					gamefield.refresh(boxes, player);
+				}
+			}
+		}
+	}
+
+	/**
 	 * Moves boxes down if possible or destroy them when hit player while
 	 * jumping
 	 */
@@ -454,81 +546,47 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 	}
 
 	/**
-	 * Deletes bottom row of boxes if it is full and increases score
+	 * Spawns a new box at a random time, if box spawns in a box because an old
+	 * box is lying there, game over
 	 */
-	private void deleteBoxes() {
-		if (bottomBoxCount >= Gamefield.MAX_LED_X
-				/ player.getSymbol()[0].length) {
+	private void spawnBox() {
+		long currentTime = Calendar.getInstance().getTimeInMillis();
+		if (spawnTimer <= 0) {
+			spawnTimer = ((long) (Math.random() * 1000 + MINIMUM_SPAWN_DELAY))
+					+ currentTime;
+		} else if (currentTime >= spawnTimer) {
+			Box box = new Box();
+			int testY = box.getPosition().getTopLeftY();
+			int testX = box.getPosition().getTopLeftX();
 			for (Iterator<Box> iter = boxes.iterator(); iter.hasNext();) {
-				if (iter.next().isAtBottom()) {
-					iter.remove();
+				Box current = iter.next();
+				if (current.getPosition().getTopLeftX() == testX
+						&& current.getPosition().getTopLeftY() == testY) {
+					gameStatus = GameStatus.GAME_OVER;
+					return;
 				}
 			}
-			SoundManager.getInstance().playRowScore();
-			VibrationManager.getInstance().vibrate();
-			score += SCORE_BONUS_FULL_ROW;
-			notifyUpdateListener();
-			bottomBoxCount = 0;
+			boxes.add(box);
+			spawnTimer = 0;
 			gamefield.refresh(boxes, player);
 		}
 	}
 
 	/**
-	 * Moves the player up or down
+	 * Refreshes the gamefield and sends it to the display (led matrix)
 	 */
-	private void movePlayerUpDown() {
-		int testBotX = player.getPosition().getBottomRightX();
-		int testBotY = player.getPosition().getBottomRightY() + 1;
-		int testTopY = player.getPosition().getTopLeftY() - 1;
-		if (player.isJumping() && pushCounterLeft == 0 && pushCounterRight == 0) {
-			Log.d("engine", "player is jumping");
-			if (!player.isTop()
-					&& gamefield.getGamefield()[testTopY][testBotX] == Gamefield.LED_OFF
-					&& gamefield.getGamefield()[testTopY][testBotX - 1] == Gamefield.LED_OFF
-					&& gamefield.getGamefield()[testTopY][testBotX - 2] == Gamefield.LED_OFF) {
-				player.move(Direction.UP);
-				gamefield.refresh(boxes, player);
-				jumpCounter--;
-				if (jumpCounter <= 0) {
-					changeJumping(false);
-					jumpCounter = JUMP_HEIGHT;
-				}
-			} else {
-				jumpCounter--;
-				if (jumpCounter <= 0) {
-					changeJumping(false);
-					jumpCounter = JUMP_HEIGHT;
-				}
-			}
-		} else {
-			if (!player.isAtBottom()) {
-				if (gamefield.getGamefield()[testBotY][testBotX] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testBotY][testBotX - 1] == Gamefield.LED_OFF
-						&& gamefield.getGamefield()[testBotY][testBotX - 2] == Gamefield.LED_OFF) {
-					player.move(Direction.DOWN);
-					gamefield.refresh(boxes, player);
-				}
-			}
-		}
+	private void refreshAndSend() {
+		gamefield.refresh(boxes, player);
+		BluetoothManager.getInstance().send(gamefield.getGamefield());
 	}
 
+	/**
+	 * Notifies the update listeners
+	 */
 	private void notifyUpdateListener() {
 		updateListener.updateScore(score);
 		if (gameStatus == GameStatus.GAME_OVER) {
 			updateListener.changeToScoreActivity();
 		}
-	}
-
-	public void setUpdateListener(UpdateListener listener) {
-		updateListener = listener;
-	}
-
-	public GameStatus getGameStatus() {
-		return gameStatus;
-	}
-
-	private void refreshAndSend() {
-		gamefield.refresh(boxes, player);
-		BluetoothManager.getInstance().send(gamefield.getGamefield());
 	}
 }

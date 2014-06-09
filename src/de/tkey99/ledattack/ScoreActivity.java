@@ -1,21 +1,31 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack;
 
-import tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.R;
+import de.tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.engine.gamefield.StaticGameFields;
 import android.app.Activity;
-import android.hardware.Sensor;
-import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
-import android.widget.CompoundButton;
 import android.widget.TextView;
-import android.widget.CompoundButton.OnCheckedChangeListener;
 
+/**
+ * This activity provides the score after losing a game.
+ * 
+ * @author TKey99
+ * 
+ */
 public class ScoreActivity extends Activity {
 
+	/**
+	 * Score to be shown
+	 */
 	private TextView score;
 
+	/**
+	 * OK button
+	 */
 	private Button okButton;
 
 	@Override

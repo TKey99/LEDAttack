@@ -1,7 +1,4 @@
-package tkey99.ledattack.gameobjects;
-
-import tkey99.ledattack.Gamefield;
-import tkey99.ledattack.Position;
+package de.tkey99.ledattack.engine.gameobjects;
 
 /**
  * Represents the player in the game
@@ -12,10 +9,13 @@ import tkey99.ledattack.Position;
 public class Player extends GameObject {
 
 	/**
-	 * 
+	 * Indicates if the player is pushing at the moment
 	 */
 	private boolean isPushing;
 
+	/**
+	 * Indicates if the player is jumping at the moment
+	 */
 	private boolean isJumping;
 
 	/**
@@ -23,14 +23,6 @@ public class Player extends GameObject {
 	 */
 	private final byte[][] SYMBOL = new byte[][] { { X, X, X }, { X, X, X },
 			{ 0, X, 0 }, { X, X, X }, { 0, X, 0 }, { X, 0, X } };
-
-	public boolean isPushing() {
-		return isPushing;
-	}
-
-	public void setPushing(boolean isPushing) {
-		this.isPushing = isPushing;
-	}
 
 	/**
 	 * Constructs a new player
@@ -41,6 +33,44 @@ public class Player extends GameObject {
 
 		isPushing = false;
 		isJumping = false;
+	}
+
+	/**
+	 * Returns whether the player is pushing
+	 * 
+	 * @return true if is pushing, false otherwise
+	 */
+	public boolean isPushing() {
+		return isPushing;
+	}
+
+	/**
+	 * Sets whether the player is pushing
+	 * 
+	 * @param isPushing
+	 *            push status
+	 */
+	public void setPushing(boolean isPushing) {
+		this.isPushing = isPushing;
+	}
+
+	/**
+	 * Returns whether the player is jumping
+	 * 
+	 * @return true if is jumping, false otherwise
+	 */
+	public boolean isJumping() {
+		return isJumping;
+	}
+
+	/**
+	 * Sets whether the player is pushing
+	 * 
+	 * @param isJumping
+	 *            push status
+	 */
+	public void setJumping(boolean isJumping) {
+		this.isJumping = isJumping;
 	}
 
 	/**
@@ -70,18 +100,15 @@ public class Player extends GameObject {
 		return SYMBOL;
 	}
 
+	/**
+	 * Returns whether the player is at the top of the gamefield
+	 * 
+	 * @return true if is at the top, false otherwise
+	 */
 	public boolean isTop() {
 		if (position.getTopLeftY() <= 0) {
 			return true;
 		}
 		return false;
-	}
-
-	public boolean isJumping() {
-		return isJumping;
-	}
-
-	public void setJumping(boolean isJumping) {
-		this.isJumping = isJumping;
 	}
 }

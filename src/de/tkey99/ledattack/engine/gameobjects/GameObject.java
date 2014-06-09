@@ -1,8 +1,6 @@
-package tkey99.ledattack.gameobjects;
+package de.tkey99.ledattack.engine.gameobjects;
 
-import tkey99.ledattack.Direction;
-import tkey99.ledattack.Gamefield;
-import tkey99.ledattack.Position;
+import de.tkey99.ledattack.engine.gamefield.Gamefield;
 
 /**
  * Represents a game object
@@ -86,7 +84,7 @@ public abstract class GameObject {
 		}
 		return false;
 	}
-	
+
 	public boolean isLeft() {
 		if (position.getTopLeftX() <= 0) {
 			return true;

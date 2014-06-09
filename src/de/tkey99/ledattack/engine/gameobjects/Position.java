@@ -1,4 +1,4 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack.engine.gameobjects;
 
 /**
  * Represents a position of a game object

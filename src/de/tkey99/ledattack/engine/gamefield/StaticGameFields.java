@@ -1,4 +1,6 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack.engine.gamefield;
+
+
 
 /**
  * Provides different static gamefields.
@@ -21,7 +23,7 @@ public class StaticGameFields {
 	private static final byte X = Gamefield.LED_ON;
 	
 	/**
-	 * Ready
+	 * READY
 	 */
 	public static final byte[][] COUNTDOWN_READY = new byte[][] {
 		{0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,   0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},

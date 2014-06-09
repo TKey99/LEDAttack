@@ -1,11 +1,11 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack.engine.gamefield;
 
 import java.util.Iterator;
 import java.util.List;
 
-import tkey99.ledattack.gameobjects.Box;
-import tkey99.ledattack.gameobjects.GameObject;
-import tkey99.ledattack.gameobjects.Player;
+import de.tkey99.ledattack.engine.gameobjects.Box;
+import de.tkey99.ledattack.engine.gameobjects.GameObject;
+import de.tkey99.ledattack.engine.gameobjects.Player;
 
 /**
  * Provides the gamefield of the game.

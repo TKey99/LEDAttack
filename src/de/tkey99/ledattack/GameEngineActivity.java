@@ -1,6 +1,10 @@
-package tkey99.ledattack;
+package de.tkey99.ledattack;
 
-import tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.R;
+import de.tkey99.ledattack.utilities.BluetoothManager;
+import de.tkey99.ledattack.engine.GameStatus;
+import de.tkey99.ledattack.engine.LedAttackEngine;
+import de.tkey99.ledattack.engine.gamefield.StaticGameFields;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
@@ -28,16 +32,34 @@ import android.widget.ToggleButton;
  */
 public class GameEngineActivity extends Activity implements UpdateListener {
 
+	/**
+	 * Statusbutton for the game status
+	 */
 	private ToggleButton statusButton;
 
+	/**
+	 * Jump button
+	 */
 	private Button jumpButton;
 
+	/**
+	 * Push button
+	 */
 	private Button pushButton;
 
+	/**
+	 * Shows the actual score
+	 */
 	private TextView scoreView;
 
+	/**
+	 * Game engine
+	 */
 	private LedAttackEngine engine;
 
+	/**
+	 * Manages the devices sensors
+	 */
 	private SensorManager sensorManager;
 
 	@Override
@@ -203,7 +225,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		alertBuilder.setPositiveButton(R.string.yes,
 				new DialogInterface.OnClickListener() {
 					public void onClick(DialogInterface dialog, int id) {
-						if(engine.getGameStatus() == GameStatus.PAUSE) {
+						if (engine.getGameStatus() == GameStatus.PAUSE) {
 							statusButton.setChecked(true);
 						}
 						engine.setGameStatus(GameStatus.GAME_OVER);
