@@ -226,7 +226,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void run() {
-		// kisten in der luft verschieben buggt
 	
 		showIntro();
 	
