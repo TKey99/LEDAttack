@@ -12,7 +12,6 @@ import tkey99.ledattack.utilities.VibrationManager;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.util.Log;
 
 /**
@@ -22,6 +21,11 @@ import android.util.Log;
  * 
  */
 public class LedAttackEngine extends Thread implements SensorEventListener {
+
+	/**
+	 * Sensor used by this game engine
+	 */
+	public static final int SENSOR = Sensor.TYPE_ACCELEROMETER;
 
 	/**
 	 * Value of the sensor to move the player
@@ -111,13 +115,13 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 	@Override
 	public void onSensorChanged(SensorEvent event) {
-		if (event.sensor.getType() == Sensor.TYPE_GYROSCOPE) {
-			float x = event.values[0]; // für kippen
-			float y = event.values[1];
+		if (event.sensor.getType() == SENSOR) {
+			float x = event.values[0];
+			float y = event.values[1]; // tilt
 			float z = event.values[2];
 
-			sensorValue += x;
-
+			sensorValue = y;
+			Log.d("sensor", "y = " + y);
 		}
 	}
 
@@ -173,7 +177,6 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 
 		showIntro();
 
-		boxes.add(new Box(9, 0));
 		while (true) {
 
 			// eventually delete bottom boxes and increase score
@@ -190,14 +193,12 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 			} else {
 				movePlayerLeftRight();
 			}
-			gamefield.refresh(boxes, player);
 
 			// move boxes
 			moveBoxesDown();
-			gamefield.refresh(boxes, player);
 
 			// eventually spawn box
-			// spawnBox();
+			spawnBox();
 
 			// send gamefield
 			refreshAndSend();
@@ -374,6 +375,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				}
 			}
 		}
+		pushCounterRight = 0;
 	}
 
 	/**
@@ -406,6 +408,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 				}
 			}
 		}
+		pushCounterLeft = 0;
 	}
 
 	/**
@@ -477,7 +480,7 @@ public class LedAttackEngine extends Thread implements SensorEventListener {
 		int testBotX = player.getPosition().getBottomRightX();
 		int testBotY = player.getPosition().getBottomRightY() + 1;
 		int testTopY = player.getPosition().getTopLeftY() - 1;
-		if (player.isJumping()) {
+		if (player.isJumping() && pushCounterLeft == 0 && pushCounterRight == 0) {
 			Log.d("engine", "player is jumping");
 			if (!player.isTop()
 					&& gamefield.getGamefield()[testTopY][testBotX] == Gamefield.LED_OFF

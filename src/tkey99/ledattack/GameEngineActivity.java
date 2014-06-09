@@ -1,14 +1,12 @@
 package tkey99.ledattack;
 
 import tkey99.ledattack.utilities.BluetoothManager;
-import tkey99.ledattack.utilities.SoundManager;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.hardware.Sensor;
 import android.hardware.SensorManager;
 import android.os.Bundle;
 import android.util.Log;
@@ -70,7 +68,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 		if (!engine.isAlive()) {
 			engine.start();
 			sensorManager.registerListener(engine,
-					sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+					sensorManager.getDefaultSensor(LedAttackEngine.SENSOR),
 					SensorManager.SENSOR_DELAY_GAME);
 		}
 	}
@@ -124,7 +122,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 			if (isChecked == true) {
 				engine.setGameStatus(GameStatus.INGAME);
 				sensorManager.registerListener(engine,
-						sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE),
+						sensorManager.getDefaultSensor(LedAttackEngine.SENSOR),
 						SensorManager.SENSOR_DELAY_GAME);
 				synchronized (engine) {
 					engine.notify();
@@ -132,7 +130,7 @@ public class GameEngineActivity extends Activity implements UpdateListener {
 			} else {
 				engine.setGameStatus(GameStatus.PAUSE);
 				sensorManager.unregisterListener(engine,
-						sensorManager.getDefaultSensor(Sensor.TYPE_GYROSCOPE));
+						sensorManager.getDefaultSensor(LedAttackEngine.SENSOR));
 			}
 		}
 	}
